@@ -1,0 +1,240 @@
+[gd_scene load_steps=15 format=2]
+
+[ext_resource path="res://fonts/SmoochSans-Regular.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://arena/buy_menu.gd" type="Script" id=2]
+[ext_resource path="res://fonts/SmoochSans-SemiBold.ttf" type="DynamicFontData" id=3]
+[ext_resource path="res://arena/range_editor.tscn" type="PackedScene" id=4]
+[ext_resource path="res://fonts/SmoochSans-Black.ttf" type="DynamicFontData" id=5]
+
+[sub_resource type="StyleBoxFlat" id=59]
+bg_color = Color( 1, 1, 1, 1 )
+border_width_left = 1
+border_width_top = 1
+border_color = Color( 0.541176, 0.796078, 1, 1 )
+corner_detail = 1
+
+[sub_resource type="GDScript" id=75]
+script/source = "extends Node
+
+export(Array, NodePath) var exclusive_nodes
+
+onready var parent = get_parent()
+
+func _ready():
+  for i in range(len(exclusive_nodes)):
+    exclusive_nodes[i] = get_node(exclusive_nodes[i])
+  parent.connect(\"visibility_changed\", self, \"on_visibility_changed\")
+
+func on_visibility_changed():
+  for node in exclusive_nodes:
+    node.visible = not parent.visible
+"
+
+[sub_resource type="StyleBoxEmpty" id=47]
+
+[sub_resource type="GDScript" id=73]
+script/source = "extends \"res://arena/range_editor.gd\"
+
+export(NodePath) var target
+const step = 5
+
+func _ready():
+  target = get_node(target)
+  update_text(target.distance_range)
+
+func change_low(delta):
+  target.distance_range = Vector2(target.distance_range.x + delta * step, target.distance_range.y)
+  update_text(target.distance_range)
+
+func change_high(delta):
+  target.distance_range = Vector2(target.distance_range.x, target.distance_range.y + delta * step)
+  update_text(target.distance_range)
+"
+
+[sub_resource type="GDScript" id=80]
+script/source = "extends \"res://arena/range_editor.gd\"
+
+export(NodePath) var target
+export var step:int = 10
+
+func _ready():
+  target = get_node(target)
+  update_text(target.targeted_count)
+
+func change_high(delta):
+  target.targeted_count += step * delta
+  update_text(target.targeted_count)
+
+func update_text(value):
+  $range.text = str(value)
+
+func set_visibility_state(value):
+  $high.visible = value
+"
+
+[sub_resource type="DynamicFont" id=77]
+size = 20
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+extra_spacing_top = -3
+extra_spacing_bottom = -4
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=78]
+size = 20
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+extra_spacing_top = -3
+extra_spacing_bottom = -4
+font_data = ExtResource( 3 )
+
+[sub_resource type="DynamicFont" id=76]
+size = 22
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+extra_spacing_top = -6
+extra_spacing_bottom = -7
+font_data = ExtResource( 5 )
+
+[sub_resource type="StyleBoxEmpty" id=74]
+
+[node name="barrier_menu" type="HBoxContainer"]
+margin_left = 25.0
+margin_right = 158.0
+margin_bottom = 60.0
+custom_constants/separation = 5
+script = ExtResource( 2 )
+company = NodePath("../../../../../../../core")
+
+[node name="sep" type="VSeparator" parent="."]
+margin_right = 4.0
+margin_bottom = 60.0
+custom_styles/separator = SubResource( 59 )
+script = SubResource( 75 )
+
+[node name="header" type="Control" parent="."]
+margin_left = 9.0
+margin_right = 29.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 20, 0 )
+
+[node name="close" type="Button" parent="header"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -35.0
+margin_top = -13.0
+margin_right = 25.0
+margin_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+rect_min_size = Vector2( 60, 0 )
+rect_rotation = -90.0
+rect_pivot_offset = Vector2( 35, 15 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.427451, 0.843137, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.427451, 0.843137, 1, 0.752941 )
+custom_styles/hover = SubResource( 47 )
+custom_styles/pressed = SubResource( 47 )
+custom_styles/focus = SubResource( 47 )
+custom_styles/disabled = SubResource( 47 )
+custom_styles/normal = SubResource( 47 )
+text = "green"
+flat = true
+
+[node name="fields" type="VBoxContainer" parent="."]
+margin_left = 34.0
+margin_right = 124.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 90, 0 )
+size_flags_vertical = 6
+
+[node name="orbit" parent="fields" instance=ExtResource( 4 )]
+custom_constants/separation = 5
+script = SubResource( 73 )
+
+[node name="label" parent="fields/orbit" index="1"]
+margin_right = 28.0
+text = "orbit"
+
+[node name="range" parent="fields/orbit" index="2"]
+margin_left = 33.0
+
+[node name="count" type="HBoxContainer" parent="fields"]
+margin_top = 32.0
+margin_right = 90.0
+margin_bottom = 60.0
+custom_constants/separation = 5
+script = SubResource( 80 )
+
+[node name="label" type="Label" parent="fields/count"]
+margin_right = 37.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 37, 28 )
+custom_fonts/font = SubResource( 77 )
+text = "target"
+valign = 1
+
+[node name="range" type="Label" parent="fields/count"]
+margin_left = 42.0
+margin_top = 5.0
+margin_right = 90.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+custom_fonts/font = SubResource( 78 )
+text = "30"
+align = 1
+valign = 1
+
+[node name="high" type="VBoxContainer" parent="fields/count"]
+visible = false
+margin_left = 85.0
+margin_right = 96.0
+margin_bottom = 28.0
+custom_constants/separation = 0
+
+[node name="add" type="Button" parent="fields/count/high"]
+margin_right = 11.0
+margin_bottom = 14.0
+mouse_filter = 1
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.337255, 0.796078, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.337255, 0.796078, 1, 0.501961 )
+custom_fonts/font = SubResource( 76 )
+custom_styles/hover = SubResource( 74 )
+custom_styles/pressed = SubResource( 74 )
+custom_styles/focus = SubResource( 74 )
+custom_styles/disabled = SubResource( 74 )
+custom_styles/normal = SubResource( 74 )
+text = "+"
+
+[node name="subtract" type="Button" parent="fields/count/high"]
+margin_top = 14.0
+margin_right = 11.0
+margin_bottom = 28.0
+mouse_filter = 1
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.337255, 0.796078, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.337255, 0.796078, 1, 0.501961 )
+custom_fonts/font = SubResource( 76 )
+custom_styles/hover = SubResource( 74 )
+custom_styles/pressed = SubResource( 74 )
+custom_styles/focus = SubResource( 74 )
+custom_styles/disabled = SubResource( 74 )
+custom_styles/normal = SubResource( 74 )
+text = "-"
+
+[node name="sep2" type="VSeparator" parent="."]
+margin_left = 129.0
+margin_right = 133.0
+margin_bottom = 60.0
+custom_styles/separator = SubResource( 59 )
+
+[connection signal="pressed" from="header/close" to="." method="set_visible" binds= [ false ]]
+[connection signal="mouse_entered" from="fields/count" to="fields/count" method="set_visibility_state" binds= [ true ]]
+[connection signal="mouse_exited" from="fields/count" to="fields/count" method="set_visibility_state" binds= [ false ]]
+[connection signal="pressed" from="fields/count/high/add" to="fields/count" method="change_high" binds= [ 1 ]]
+[connection signal="pressed" from="fields/count/high/subtract" to="fields/count" method="change_high" binds= [ -1 ]]
+
+[editable path="fields/orbit"]

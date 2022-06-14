@@ -1,0 +1,200 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://backgrounds/stars.png" type="Texture" id=1]
+[ext_resource path="res://backgrounds/galaxy.png" type="Texture" id=2]
+[ext_resource path="res://fonts/TitleFontLarge.tres" type="DynamicFont" id=3]
+[ext_resource path="res://fonts/Ubuntu-Medium.ttf" type="DynamicFontData" id=4]
+[ext_resource path="res://fonts/Ubuntu-Light.ttf" type="DynamicFontData" id=5]
+[ext_resource path="res://fonts/SmoochSans-Regular.ttf" type="DynamicFontData" id=6]
+[ext_resource path="res://base/theme.tres" type="Theme" id=7]
+
+[sub_resource type="DynamicFont" id=3]
+size = 20
+font_data = ExtResource( 5 )
+
+[sub_resource type="DynamicFont" id=4]
+size = 48
+font_data = ExtResource( 6 )
+
+[sub_resource type="DynamicFont" id=1]
+size = 30
+font_data = ExtResource( 5 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 30
+font_data = ExtResource( 4 )
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends Button
+
+func back():
+  SceneManager.fade_load(\"victory\", \"main_menu\")
+"
+
+[node name="ui" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="bg" type="TextureRect" parent="."]
+anchor_left = -0.5
+anchor_top = -0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_right = 1024.0
+margin_bottom = 600.0
+mouse_filter = 2
+texture = ExtResource( 1 )
+expand = true
+stretch_mode = 6
+
+[node name="bg" type="TextureRect" parent="bg"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource( 2 )
+expand = true
+stretch_mode = 6
+
+[node name="text" type="VBoxContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -351.5
+margin_top = -286.5
+margin_right = 351.5
+margin_bottom = 286.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="title" type="Label" parent="text"]
+margin_right = 703.0
+margin_bottom = 108.0
+grow_horizontal = 2
+custom_fonts/font = ExtResource( 3 )
+text = "CONGRATULATIONS"
+align = 1
+
+[node name="message" type="Label" parent="text"]
+margin_top = 112.0
+margin_right = 703.0
+margin_bottom = 343.0
+grow_horizontal = 2
+custom_fonts/font = SubResource( 3 )
+text = "You have passed the first lesson of your pilot training program.
+That is all we have for now, but more lessons will be available in the future.
+
+There is much to be learned, from combat tactics to advanced weaponry;
+if there is demand, we might even open new programs on spaceship
+architecture and commander training!
+
+So consider supporting to grow the academy and follow us onsocial media
+for updates."
+
+[node name="subtible" type="Label" parent="text"]
+margin_top = 347.0
+margin_right = 703.0
+margin_bottom = 437.0
+grow_horizontal = 2
+rect_min_size = Vector2( 0, 90 )
+custom_fonts/font = SubResource( 4 )
+text = "CREDITS"
+align = 1
+valign = 2
+
+[node name="credit" type="VBoxContainer" parent="text"]
+margin_left = 201.0
+margin_top = 441.0
+margin_right = 501.0
+margin_bottom = 599.0
+rect_min_size = Vector2( 300, 0 )
+size_flags_horizontal = 4
+
+[node name="row" type="Control" parent="text/credit"]
+margin_right = 300.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 0, 50 )
+
+[node name="key" type="Label" parent="text/credit/row"]
+anchor_bottom = 1.0
+margin_right = 100.0
+size_flags_vertical = 7
+custom_fonts/font = SubResource( 1 )
+text = "Creator"
+valign = 2
+
+[node name="value" type="Label" parent="text/credit/row"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -160.0
+grow_horizontal = 0
+size_flags_vertical = 7
+custom_fonts/font = SubResource( 2 )
+text = "Quandangv"
+align = 2
+valign = 2
+
+[node name="row2" type="Control" parent="text/credit"]
+margin_top = 54.0
+margin_right = 300.0
+margin_bottom = 104.0
+rect_min_size = Vector2( 0, 50 )
+
+[node name="key" type="Label" parent="text/credit/row2"]
+anchor_bottom = 1.0
+margin_right = 84.0
+size_flags_vertical = 7
+custom_fonts/font = SubResource( 1 )
+text = "Tester"
+valign = 2
+
+[node name="value" type="Label" parent="text/credit/row2"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -85.0
+grow_horizontal = 0
+size_flags_vertical = 7
+custom_fonts/font = SubResource( 2 )
+text = "Mymy"
+align = 2
+valign = 2
+
+[node name="row3" type="Control" parent="text/credit"]
+margin_top = 108.0
+margin_right = 300.0
+margin_bottom = 158.0
+rect_min_size = Vector2( 0, 50 )
+
+[node name="key" type="Label" parent="text/credit/row3"]
+anchor_bottom = 1.0
+margin_right = 84.0
+size_flags_vertical = 7
+custom_fonts/font = SubResource( 1 )
+text = "Music"
+valign = 2
+
+[node name="value" type="Label" parent="text/credit/row3"]
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -85.0
+grow_horizontal = 0
+size_flags_vertical = 7
+custom_fonts/font = SubResource( 2 )
+text = "DivKid"
+align = 2
+valign = 2
+
+[node name="back" type="Button" parent="."]
+margin_left = 20.0
+margin_top = 20.0
+margin_right = 12.0
+margin_bottom = 20.0
+rect_scale = Vector2( 0.333, 0.333 )
+theme = ExtResource( 7 )
+text = "Back"
+script = SubResource( 5 )
+
+[connection signal="pressed" from="back" to="back" method="back"]

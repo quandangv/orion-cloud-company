@@ -1,0 +1,147 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Resource",
+"class": "AsteroidStat",
+"language": "GDScript",
+"path": "res://arena/asteroid_stat.gd"
+}, {
+"base": "Resource",
+"class": "Component",
+"language": "GDScript",
+"path": "res://ship_build/component.gd"
+}, {
+"base": "ImageTexture",
+"class": "RadialGradientTexture",
+"language": "GDScript",
+"path": "res://ship_build/RadialGradientTexture.gd"
+}, {
+"base": "Resource",
+"class": "ResourceInfo",
+"language": "GDScript",
+"path": "res://arena/resource_info.gd"
+}, {
+"base": "Resource",
+"class": "SceneInfo",
+"language": "GDScript",
+"path": "res://scene_info.gd"
+}, {
+"base": "Resource",
+"class": "SoundInfo",
+"language": "GDScript",
+"path": "res://base/sound_info.gd"
+} ]
+_global_script_class_icons={
+"AsteroidStat": "",
+"Component": "",
+"RadialGradientTexture": "",
+"ResourceInfo": "",
+"SceneInfo": "",
+"SoundInfo": ""
+}
+
+[application]
+
+config/name="ssa"
+run/main_scene="res://arena/game.tscn"
+config/icon="res://icon.png"
+
+[autoload]
+
+ComponentUtils="*res://component_utils.tscn"
+GameUtils="*res://game_utils.tscn"
+SoundPlayer="*res://sound_player.tscn"
+SceneManager="*res://scene_manager.tscn"
+Storage="*res://base/storage.gd"
+InputCoordinator="*res://input_coordinator.gd"
+Multiplayer="*res://base/multiplayer.tscn"
+AnimController="*res://base/anim_controller.gd"
+Pools="*res://base/pools.tscn"
+ShapeLib="*res://shape_lib.tscn"
+BulkAnim="*res://bulk_anim.tscn"
+
+[debug]
+
+settings/fps/force_fps=60
+gdscript/warnings/shadowed_variable=false
+gdscript/warnings/unused_argument=false
+gdscript/warnings/return_value_discarded=false
+
+[display]
+
+window/size/height=768
+
+[global]
+
+main=false
+hdr=false
+output=false
+
+[input]
+
+left={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":65,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777231,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+ ]
+}
+right={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":68,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777233,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+ ]
+}
+up={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777232,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":87,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+ ]
+}
+down={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777234,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+, Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":83,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+ ]
+}
+fire={
+"deadzone": 0.5,
+"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":1,"pressed":false,"doubleclick":false,"script":null)
+ ]
+}
+zoom_in={
+"deadzone": 0.5,
+"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":4,"pressed":false,"doubleclick":false,"script":null)
+ ]
+}
+zoom_out={
+"deadzone": 0.5,
+"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":5,"pressed":false,"doubleclick":false,"script":null)
+ ]
+}
+
+[locale]
+
+translations=PoolStringArray( "res://locale/en.po" )
+
+[network]
+
+limits/debugger_stdout/max_chars_per_second=1000000
+limits/debugger_stdout/max_messages_per_frame=100
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+vram_compression/import_etc=true
+environment/default_clear_color=Color( 0, 0, 0, 1 )
+quality/depth/hdr=false

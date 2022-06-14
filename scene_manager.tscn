@@ -1,0 +1,244 @@
+[gd_scene load_steps=24 format=2]
+
+[ext_resource path="res://music_fader.gd" type="Script" id=2]
+[ext_resource path="res://scene_manager.gd" type="Script" id=4]
+[ext_resource path="res://resource_queue.gd" type="Script" id=5]
+[ext_resource path="res://circle_drawer.gd" type="Script" id=6]
+[ext_resource path="res://scene_info.gd" type="Script" id=7]
+[ext_resource path="res://music/Cupid's Tubes - DivKid.ogg" type="AudioStream" id=8]
+[ext_resource path="res://music/Cosmic Drift - DivKid.ogg" type="AudioStream" id=9]
+[ext_resource path="res://music/Dreamer - DivKid.ogg" type="AudioStream" id=10]
+[ext_resource path="res://music/Dusk - DivKid.ogg" type="AudioStream" id=11]
+[ext_resource path="res://music/Digifunk - DivKid.ogg" type="AudioStream" id=12]
+[ext_resource path="res://music/Commander Impulse - DivKid.ogg" type="AudioStream" id=13]
+[ext_resource path="res://music/Icelandic Arpeggios - DivKid.ogg" type="AudioStream" id=14]
+[ext_resource path="res://music/Arp Ascent - DivKid.ogg" type="AudioStream" id=15]
+[ext_resource path="res://music/Mover - DivKid.ogg" type="AudioStream" id=16]
+[ext_resource path="res://music/Parisian Funk - DivKid.ogg" type="AudioStream" id=17]
+[ext_resource path="res://music/Polaroid Memories - DivKid.ogg" type="AudioStream" id=18]
+
+[sub_resource type="Resource" id=3]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "main_menu"
+path = "res://pilot/main_menu.tscn"
+color = Color( 0, 0.145098, 0.713726, 1 )
+music = ExtResource( 13 )
+
+[sub_resource type="Resource" id=4]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "intro"
+path = "res://pilot/intro_scene.tscn"
+color = Color( 0.87451, 0.72549, 0, 1 )
+music = ExtResource( 9 )
+
+[sub_resource type="Resource" id=5]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "victory"
+path = "res://pilot/victory.tscn"
+color = Color( 0, 0.670588, 1, 1 )
+
+[sub_resource type="Resource" id=7]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "sandbox"
+path = "res://pilot/sandbox.tscn"
+color = Color( 1, 1, 1, 1 )
+
+[sub_resource type="Animation" id=1]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("rect:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 0, 0.647059, 1, 0.12549 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("rect:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("rect:rect_scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 1000, 1000 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("music:volume_db")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ -40.0 ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("music:playing")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ true ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("rect:rect_position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ) ]
+}
+
+[sub_resource type="Animation" id=6]
+resource_name = "exp_circle"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("rect:rect_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1, 2 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1e-05, 1e-05 ), Vector2( 400, 400 ), Vector2( 1e-05, 1e-05 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("rect:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("rect:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("rect:rect_position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 0, 0 ) ]
+}
+
+[sub_resource type="Animation" id=2]
+resource_name = "fade"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("rect:visible")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("rect:modulate")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.9, 1.1, 2 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 0, 0.647059, 1, 0 ), Color( 0, 0, 0, 1 ), Color( 0, 0, 0, 1 ), Color( 0, 0.647059, 1, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("rect:rect_scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 1000, 1000 ) ]
+}
+
+[node name="scene_loader" type="CanvasLayer"]
+pause_mode = 2
+layer = 2
+script = ExtResource( 4 )
+scenes = [ SubResource( 3 ), SubResource( 4 ), SubResource( 5 ), SubResource( 7 ) ]
+rand_music = [ ExtResource( 15 ), ExtResource( 13 ), ExtResource( 9 ), ExtResource( 8 ), ExtResource( 12 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 14 ), ExtResource( 16 ), ExtResource( 17 ), ExtResource( 18 ) ]
+
+[node name="anim" type="AnimationPlayer" parent="."]
+anims/RESET = SubResource( 1 )
+anims/exp_circle = SubResource( 6 )
+anims/fade = SubResource( 2 )
+
+[node name="rect" type="Control" parent="."]
+visible = false
+modulate = Color( 0, 0.647059, 1, 0.12549 )
+rect_scale = Vector2( 1000, 1000 )
+script = ExtResource( 6 )
+
+[node name="music" type="AudioStreamPlayer" parent="."]
+pause_mode = 2
+volume_db = -40.0
+bus = "Music"
+script = ExtResource( 2 )
+
+[node name="queue" type="Node" parent="."]
+pause_mode = 2
+script = ExtResource( 5 )

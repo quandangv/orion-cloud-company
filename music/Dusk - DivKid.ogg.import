@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Dusk - DivKid.ogg-a262ce440b68bc9de85377e41df57e0a.oggstr"
+
+[deps]
+
+source_file="res://music/Dusk - DivKid.ogg"
+dest_files=[ "res://.import/Dusk - DivKid.ogg-a262ce440b68bc9de85377e41df57e0a.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

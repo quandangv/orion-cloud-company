@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Rising Sun - DivKid.ogg-08cfa2187f75ff1853677b931fe774c6.oggstr"
+
+[deps]
+
+source_file="res://music/Rising Sun - DivKid.ogg"
+dest_files=[ "res://.import/Rising Sun - DivKid.ogg-08cfa2187f75ff1853677b931fe774c6.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

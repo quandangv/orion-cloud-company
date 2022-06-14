@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Space Trooper - DivKid.ogg-14071d5e246385cb050b0407d78efe9e.oggstr"
+
+[deps]
+
+source_file="res://music/Space Trooper - DivKid.ogg"
+dest_files=[ "res://.import/Space Trooper - DivKid.ogg-14071d5e246385cb050b0407d78efe9e.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

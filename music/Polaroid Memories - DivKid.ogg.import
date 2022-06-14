@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Polaroid Memories - DivKid.ogg-b24ab12f3c525bbb98420244cdeb215a.oggstr"
+
+[deps]
+
+source_file="res://music/Polaroid Memories - DivKid.ogg"
+dest_files=[ "res://.import/Polaroid Memories - DivKid.ogg-b24ab12f3c525bbb98420244cdeb215a.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

@@ -1,0 +1,90 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://arena/game.tscn" type="PackedScene" id=1]
+[ext_resource path="res://arena/metal_mat.tres" type="PhysicsMaterial" id=2]
+[ext_resource path="res://arena/asteroid_stat.gd" type="Script" id=3]
+
+[sub_resource type="Resource" id=11]
+resource_local_to_scene = true
+script = ExtResource( 3 )
+name = "capsule"
+rarity = 0.15
+resources = [ "iron", "capsule" ]
+resource_abundance = [ Vector2( 0.5, 0.7 ), Vector2( 0.7, 0.2 ) ]
+physics_mat = ExtResource( 2 )
+
+[node name="game" instance=ExtResource( 1 )]
+
+[node name="asteroid_modifier" parent="border/spawner" index="0"]
+asteroid_types = [ SubResource( 11 ) ]
+
+[node name="asteroid_spawner" parent="border/spawner" index="1"]
+spawn_rate = 0.0
+
+[node name="big_asteroid_spawner" parent="border/spawner" index="2"]
+spawn_rate = 1.5
+initial_velocity = 600.0
+
+[node name="follower_spawner" parent="border/spawner" index="3"]
+spawn_rate = 0.0
+
+[node name="positioner1" parent="border/spawner/positioner" index="0"]
+position = Vector2( -513.515, 0 )
+
+[node name="positioner2" parent="border/spawner/positioner" index="1"]
+position = Vector2( 513.515, 0 )
+
+[node name="positioner3" parent="border/spawner/positioner" index="2"]
+position = Vector2( 0, -513.515 )
+
+[node name="positioner4" parent="border/spawner/positioner" index="3"]
+position = Vector2( 0, 513.515 )
+
+[node name="tween" parent="border/spawner/positioner" index="4"]
+playback/active = true
+
+[node name="core" parent="." index="6"]
+capsule_credit = 100.0
+
+[node name="lazer" parent="core" index="1"]
+beam_count = 5
+
+[node name="stash" parent="core" index="2"]
+capacity_unit = 5.0
+
+[node name="sprite" parent="core/tree" index="1"]
+rotation = 1.5708
+
+[node name="barrier" parent="core/tree" index="3"]
+starting_count = 50
+
+[node name="transport" parent="core" index="8"]
+time = 5.0
+
+[node name="stash" parent="core/transport" index="0"]
+capacity = 20.0
+
+[connection signal="explode" from="ship/components" to="ship/resource_dropper" method="on_explode"]
+[connection signal="on_spawn" from="border/spawner/asteroid_spawner" to="border/spawner/asteroid_modifier" method="on_spawn"]
+[connection signal="on_spawn" from="border/spawner/big_asteroid_spawner" to="border/spawner/asteroid_modifier" method="on_spawn"]
+[connection signal="on_spawn" from="border/spawner/follower_spawner" to="border/spawner/asteroid_modifier" method="on_spawn"]
+[connection signal="pressed" from="ui/base/company/container/export2/export_upgrades/expand" to="ui/base/company/container/export_menu" method="set_visible" binds= [ true ]]
+[connection signal="area_entered" from="core/range" to="core/stash" method="area_entered"]
+[connection signal="body_entered" from="core/range" to="core/lazer" method="body_entered"]
+[connection signal="body_entered" from="core/range" to="core/stash" method="body_entered"]
+[connection signal="body_entered" from="core/range" to="core/tree/plasma_cloud" method="body_entered"]
+[connection signal="body_exited" from="core/range" to="core/lazer" method="body_exited"]
+[connection signal="body_exited" from="core/range" to="core/tree/plasma_cloud" method="body_exited"]
+[connection signal="content_changed" from="core/stash/stash" to="core/stash" method="content_changed"]
+[connection signal="timeout" from="core/tree/plasma_cloud_controller" to="core/tree/plasma_cloud_controller" method="timeout"]
+
+[editable path="ship"]
+[editable path="ui/base/company/container/lazer_menu"]
+[editable path="ui/base/company/container/minions_menu"]
+[editable path="ui/base/company/container/minions_menu/container/barrier_menu"]
+[editable path="ui/base/company/container/minions_menu/container/barrier_menu/fields/orbit"]
+[editable path="ui/base/company/container/minions_menu/container/plasma_menu"]
+[editable path="ui/base/company/container/minions_menu/container/plasma_menu/fields/orbit"]
+[editable path="ui/base/company/container/ship_menu"]
+[editable path="ui/base/company/container/export_menu"]
+[editable path="ui/base/company/container/export2"]

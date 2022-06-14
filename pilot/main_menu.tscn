@@ -1,0 +1,161 @@
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://fonts/SmoochSans-Regular.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://base/theme.tres" type="Theme" id=2]
+[ext_resource path="res://base/ship.tscn" type="PackedScene" id=3]
+[ext_resource path="res://base/anchored_target_selector.gd" type="Script" id=4]
+[ext_resource path="res://base/bot_controller.tscn" type="PackedScene" id=5]
+[ext_resource path="res://base/tracker.gd" type="Script" id=6]
+[ext_resource path="res://icons/play.svg" type="Texture" id=7]
+[ext_resource path="res://fonts/TitleFont.tres" type="DynamicFont" id=8]
+[ext_resource path="res://icons/multiplayer.svg" type="Texture" id=9]
+[ext_resource path="res://base/main_menu.gd" type="Script" id=13]
+[ext_resource path="res://backgrounds/planet_moon.tscn" type="PackedScene" id=14]
+
+[sub_resource type="DynamicFont" id=1]
+size = 75
+use_mipmaps = true
+font_data = ExtResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=2]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color( 0, 0.517647, 1, 0.670588 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="game" type="Node2D"]
+
+[node name="ship3" parent="." instance=ExtResource( 3 )]
+position = Vector2( 50, 30 )
+starting_side = "enemy"
+type = "guided_attack_ship"
+
+[node name="controller" parent="ship3" instance=ExtResource( 5 )]
+
+[node name="target_selector" type="Node2D" parent="ship3/controller"]
+script = ExtResource( 4 )
+
+[node name="enemy_check" type="Timer" parent="ship3/controller/target_selector"]
+wait_time = 0.2
+autostart = true
+
+[node name="ship4" parent="." instance=ExtResource( 3 )]
+position = Vector2( -50, 30 )
+rotation = 0.0
+type = "medium_ship"
+
+[node name="controller" parent="ship4" instance=ExtResource( 5 )]
+
+[node name="target_selector" type="Node2D" parent="ship4/controller"]
+script = ExtResource( 4 )
+
+[node name="enemy_check" type="Timer" parent="ship4/controller/target_selector"]
+wait_time = 0.2
+autostart = true
+
+[node name="ship5" parent="." instance=ExtResource( 3 )]
+position = Vector2( 50, -30 )
+starting_side = "enemy"
+type = "guided_attack_ship"
+
+[node name="controller" parent="ship5" instance=ExtResource( 5 )]
+
+[node name="target_selector" type="Node2D" parent="ship5/controller"]
+script = ExtResource( 4 )
+
+[node name="ship6" parent="." instance=ExtResource( 3 )]
+position = Vector2( -50, -30 )
+rotation = 0.0
+type = "medium_ship"
+
+[node name="controller" parent="ship6" instance=ExtResource( 5 )]
+
+[node name="target_selector" type="Node2D" parent="ship6/controller"]
+script = ExtResource( 4 )
+
+[node name="enemy_check" type="Timer" parent="ship6/controller/target_selector"]
+wait_time = 0.2
+autostart = true
+
+[node name="camera" type="Camera2D" parent="."]
+current = true
+smoothing_enabled = true
+smoothing_speed = 2.0
+script = ExtResource( 6 )
+tracked_obj = [ NodePath("../ship3"), NodePath("../ship4"), NodePath("../ship5"), NodePath("../ship6") ]
+
+[node name="Control" type="Control" parent="."]
+rect_scale = Vector2( 0.1, 0.1 )
+
+[node name="menu" type="Label" parent="Control"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -350.0
+margin_top = -393.0
+margin_right = 350.0
+margin_bottom = 393.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_fonts/font = ExtResource( 8 )
+text = "Spaceship
+Pilot
+Academy"
+align = 1
+valign = 1
+script = ExtResource( 13 )
+
+[node name="alpha" type="Label" parent="Control/menu"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -130.0
+margin_top = -91.0
+margin_right = 137.0
+grow_horizontal = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_fonts/font = SubResource( 1 )
+custom_styles/normal = SubResource( 2 )
+text = "alpha 0.0.2"
+align = 1
+valign = 1
+script = ExtResource( 13 )
+
+[node name="options" type="HBoxContainer" parent="Control/menu"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 30.0
+margin_bottom = 182.0
+grow_horizontal = 2
+custom_constants/separation = 50
+
+[node name="play" type="Button" parent="Control/menu/options"]
+margin_right = 380.0
+margin_bottom = 182.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+theme = ExtResource( 2 )
+icon = ExtResource( 7 )
+expand_icon = true
+
+[node name="multiplayer" type="Button" parent="Control/menu/options"]
+margin_left = 430.0
+margin_right = 811.0
+margin_bottom = 182.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+theme = ExtResource( 2 )
+icon = ExtResource( 9 )
+expand_icon = true
+
+[node name="background" parent="." instance=ExtResource( 14 )]
+
+[connection signal="pressed" from="Control/menu/options/play" to="Control/menu" method="play"]
+[connection signal="pressed" from="Control/menu/options/multiplayer" to="Control/menu" method="multiplay"]

@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+export var radius:float = 3 setget set_radius
+export var ratio:float = 0.5 setget set_ratio
+export var min_ratio:float = 0.3 setget set_min_ratio
+
+func _draw():
+  var points = ShapeLib.circle_seg.make_min(radius, ratio, min_ratio)
+  if points != null:
+    if points:
+      draw_colored_polygon(points, Color.white)
+  else:
+    draw_circle(Vector2.ZERO, radius, Color.white)
+
+func set_radius(value):
+  radius = value
+  update()
+
+func set_ratio(value):
+  ratio = value
+  update()
+
+func set_min_ratio(value):
+  min_ratio = value
+  update()
+"
+
+[node name="Node2D" type="Node2D"]
+position = Vector2( 200, 200 )
+scale = Vector2( 5, 5 )
+script = SubResource( 1 )
+radius = 10.0
+ratio = 0.742
+min_ratio = -0.261

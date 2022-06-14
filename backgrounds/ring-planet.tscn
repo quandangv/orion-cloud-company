@@ -1,0 +1,63 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://backgrounds/ring-1.png" type="Texture" id=2]
+[ext_resource path="res://backgrounds/stars.png" type="Texture" id=3]
+[ext_resource path="res://backgrounds/ring-2.png" type="Texture" id=4]
+[ext_resource path="res://backgrounds/ring-3.png" type="Texture" id=5]
+[ext_resource path="res://backgrounds/ring-0.png" type="Texture" id=6]
+[ext_resource path="res://backgrounds/ring-planet.png" type="Texture" id=7]
+[ext_resource path="res://backgrounds/ice-moon.png" type="Texture" id=8]
+[ext_resource path="res://backgrounds/base.tscn" type="PackedScene" id=10]
+
+[node name="background" instance=ExtResource( 10 )]
+
+[node name="layer" type="ParallaxLayer" parent="." index="2"]
+motion_scale = Vector2( 0.05, 0.05 )
+motion_mirroring = Vector2( 1229, 648 )
+
+[node name="Sprite" type="Sprite" parent="layer" index="0"]
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 3 )
+
+[node name="layer2" type="ParallaxLayer" parent="." index="3"]
+motion_scale = Vector2( 0.15, 0.15 )
+
+[node name="Sprite" type="Sprite" parent="layer2" index="0"]
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 6 )
+
+[node name="layer3" type="ParallaxLayer" parent="." index="4"]
+motion_scale = Vector2( 0.2, 0.2 )
+
+[node name="Sprite" type="Sprite" parent="layer3" index="0"]
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 2 )
+
+[node name="planet" type="ParallaxLayer" parent="." index="5"]
+motion_scale = Vector2( 0.225, 0.225 )
+
+[node name="Sprite" type="Sprite" parent="planet" index="0"]
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 7 )
+
+[node name="layer4" type="ParallaxLayer" parent="." index="6"]
+motion_scale = Vector2( 0.25, 0.25 )
+
+[node name="Sprite" type="Sprite" parent="layer4" index="0"]
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 4 )
+
+[node name="moon" type="ParallaxLayer" parent="." index="7"]
+motion_scale = Vector2( 0.25, 0.25 )
+
+[node name="Sprite" type="Sprite" parent="moon" index="0"]
+position = Vector2( 100, 100 )
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 8 )
+
+[node name="layer5" type="ParallaxLayer" parent="." index="8"]
+motion_scale = Vector2( 0.3, 0.3 )
+
+[node name="Sprite" type="Sprite" parent="layer5" index="0"]
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 5 )

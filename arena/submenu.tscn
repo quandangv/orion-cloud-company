@@ -1,0 +1,63 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="GDScript" id=46]
+script/source = "extends PanelContainer
+
+export(Array, NodePath) var exclusive_nodes
+
+func _ready():
+  for i in range(len(exclusive_nodes)):
+    exclusive_nodes[i] = get_node(exclusive_nodes[i])
+  connect(\"visibility_changed\", self, \"on_visibility_changed\")
+
+func on_visibility_changed():
+  for node in exclusive_nodes:
+    node.visible = not visible
+"
+
+[sub_resource type="StyleBoxEmpty" id=47]
+
+[node name="menu" type="PanelContainer"]
+visible = false
+margin_right = 140.0
+margin_bottom = 70.0
+script = SubResource( 46 )
+
+[node name="container" type="HBoxContainer" parent="."]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 135.0
+margin_bottom = 65.0
+custom_constants/separation = 5
+
+[node name="header" type="Control" parent="container"]
+margin_right = 20.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 20, 0 )
+
+[node name="close" type="Button" parent="container/header"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -34.0
+margin_top = -13.0
+margin_right = 26.0
+margin_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+rect_min_size = Vector2( 60, 0 )
+rect_rotation = -90.0
+rect_pivot_offset = Vector2( 35, 15 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.427451, 0.843137, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.427451, 0.843137, 1, 0.752941 )
+custom_styles/hover = SubResource( 47 )
+custom_styles/pressed = SubResource( 47 )
+custom_styles/focus = SubResource( 47 )
+custom_styles/disabled = SubResource( 47 )
+custom_styles/normal = SubResource( 47 )
+text = "close"
+flat = true
+
+[connection signal="pressed" from="container/header/close" to="." method="set_visible" binds= [ false ]]

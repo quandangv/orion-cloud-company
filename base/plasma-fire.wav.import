@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/plasma-fire.wav-e0a6698ac12a7e361f01406227218523.sample"
+
+[deps]
+
+source_file="res://base/plasma-fire.wav"
+dest_files=[ "res://.import/plasma-fire.wav-e0a6698ac12a7e361f01406227218523.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

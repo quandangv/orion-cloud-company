@@ -1,0 +1,255 @@
+[gd_scene load_steps=18 format=2]
+
+[ext_resource path="res://base/html5_notice.gd" type="Script" id=2]
+[ext_resource path="res://flat_buttons.tres" type="Theme" id=3]
+[ext_resource path="res://backgrounds/galaxy.tscn" type="PackedScene" id=5]
+[ext_resource path="res://base/tracker.gd" type="Script" id=7]
+[ext_resource path="res://flat_ui_theme.tres" type="Theme" id=8]
+[ext_resource path="res://base/pause_menu.tscn" type="PackedScene" id=9]
+[ext_resource path="res://fonts/SmallMenuFont.tres" type="DynamicFont" id=10]
+[ext_resource path="res://small_ui_theme.tres" type="Theme" id=12]
+[ext_resource path="res://base/multiplayer_ui.gd" type="Script" id=13]
+[ext_resource path="res://base/dual_state_button.gd" type="Script" id=14]
+[ext_resource path="res://icons/edit.svg" type="Texture" id=15]
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends Button
+
+func on_player_info_changed(info):
+  text = info[\"name\"]
+  add_color_override(\"font_color\", info[\"color\"])
+
+func change_color(color):
+  set(\"custom_colors/font_color\", color)
+  set(\"custom_colors/font_color_focus\", color)
+
+func _ready():
+  Storage.connect(\"player_info_changed\", self, \"on_player_info_changed\")
+  text = Storage.player[\"name\"]
+  add_color_override(\"font_color\", Storage.player[\"color\"])
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends Button
+func _toggled(button_pressed):
+  text = \"<\" if button_pressed else \">\"
+"
+
+[sub_resource type="Gradient" id=6]
+offsets = PoolRealArray( 0 )
+colors = PoolColorArray( 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=7]
+gradient = SubResource( 6 )
+width = 1
+
+[sub_resource type="Theme" id=9]
+default_font = ExtResource( 10 )
+CheckButton/icons/off = SubResource( 7 )
+CheckButton/icons/off_disabled = SubResource( 7 )
+CheckButton/icons/on = SubResource( 7 )
+CheckButton/icons/on_disabled = SubResource( 7 )
+WindowDialog/colors/title_color = Color( 1, 1, 1, 1 )
+
+[sub_resource type="GDScript" id=10]
+script/source = "extends Control
+
+func spawn_controlled():
+  Multiplayer.spawn_local(\"controlled_ship\", -1 if Multiplayer.active else 0)
+
+func spawn_bot():
+  Multiplayer.spawn_local(\"bot_ship\", -1 if Multiplayer.active else 1)
+
+func _ready():
+  spawn_controlled()
+  spawn_bot()
+  Multiplayer.connect(\"activate\", $spawn_bot, \"set_visible\", [false])
+  Multiplayer.connect(\"deactivate\", $spawn_bot, \"set_visible\", [true])
+"
+
+[node name="game" type="Node2D"]
+
+[node name="camera" type="Camera2D" parent="."]
+pause_mode = 2
+current = true
+smoothing_enabled = true
+smoothing_speed = 2.0
+script = ExtResource( 7 )
+manual_adjustment_limit = [ 0.5, 2 ]
+
+[node name="background" parent="." instance=ExtResource( 5 )]
+
+[node name="ui" type="CanvasLayer" parent="."]
+
+[node name="base" type="Control" parent="ui"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+mouse_filter = 2
+theme = ExtResource( 8 )
+
+[node name="pause_menu" parent="ui/base" instance=ExtResource( 9 )]
+margin_left = -140.0
+margin_bottom = 59.0
+
+[node name="multiplayer" type="VBoxContainer" parent="ui/base"]
+pause_mode = 2
+margin_right = 569.0
+margin_bottom = 69.0
+mouse_filter = 2
+custom_constants/separation = 10
+script = ExtResource( 13 )
+action_button_path = NodePath("text_box/action")
+join_path = NodePath("buttons/join_game")
+host_path = NodePath("buttons/host_game")
+color_path = NodePath("text_box/color_picker_box/color_picker")
+close_button_path = NodePath("text_box/close")
+text_box_path = NodePath("text_box/text_box")
+
+[node name="buttons" type="HBoxContainer" parent="ui/base/multiplayer"]
+margin_right = 569.0
+margin_bottom = 59.0
+mouse_filter = 2
+
+[node name="host_game" type="Button" parent="ui/base/multiplayer/buttons"]
+margin_right = 158.0
+margin_bottom = 59.0
+text = "Host Game"
+flat = true
+script = ExtResource( 14 )
+other_text = "Stop Hosting"
+
+[node name="join_game" type="Button" parent="ui/base/multiplayer/buttons"]
+margin_left = 188.0
+margin_right = 335.0
+margin_bottom = 59.0
+text = "Join Game"
+flat = true
+script = ExtResource( 14 )
+other_text = "Exit Game"
+
+[node name="name" type="Button" parent="ui/base/multiplayer/buttons"]
+margin_left = 365.0
+margin_right = 569.0
+margin_bottom = 59.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+text = "Anonymous"
+icon = ExtResource( 15 )
+flat = true
+script = SubResource( 5 )
+
+[node name="text_box" type="HBoxContainer" parent="ui/base/multiplayer"]
+margin_top = 69.0
+margin_right = 569.0
+margin_bottom = 69.0
+mouse_filter = 2
+theme = ExtResource( 12 )
+
+[node name="color_picker_box" type="PanelContainer" parent="ui/base/multiplayer/text_box"]
+visible = false
+margin_right = 332.0
+margin_bottom = 480.0
+
+[node name="color_picker" type="ColorPicker" parent="ui/base/multiplayer/text_box/color_picker_box"]
+margin_left = 132.0
+margin_top = 132.0
+margin_right = 448.0
+margin_bottom = 596.0
+theme = ExtResource( 3 )
+edit_alpha = false
+presets_enabled = false
+presets_visible = false
+
+[node name="text_box" type="LineEdit" parent="ui/base/multiplayer/text_box"]
+visible = false
+margin_left = 342.0
+margin_right = 542.0
+margin_bottom = 41.0
+rect_min_size = Vector2( 200, 0 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+max_length = 64
+editable = false
+expand_to_text_length = true
+context_menu_enabled = false
+placeholder_alpha = 0.4
+
+[node name="action" type="Button" parent="ui/base/multiplayer/text_box"]
+visible = false
+margin_left = 552.0
+margin_right = 632.0
+margin_bottom = 41.0
+grow_horizontal = 0
+size_flags_vertical = 0
+text = "helper"
+
+[node name="close" type="Button" parent="ui/base/multiplayer/text_box"]
+visible = false
+margin_right = 28.0
+margin_bottom = 41.0
+focus_mode = 0
+size_flags_vertical = 0
+toggle_mode = true
+text = ">"
+script = SubResource( 4 )
+
+[node name="html5_notice" type="Label" parent="ui/base/multiplayer/text_box"]
+visible = false
+margin_left = 35.0
+margin_right = 600.0
+margin_bottom = 75.0
+text = "The web platform does not support our multiplayer feature :(
+Please download the PC version to play LAN multiplayer"
+script = ExtResource( 2 )
+closed_nodes = [ NodePath("../close"), NodePath("../../buttons") ]
+
+[node name="spawn" type="VBoxContainer" parent="ui/base"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -248.0
+margin_top = -99.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="title" type="Label" parent="ui/base/spawn"]
+margin_left = 184.0
+margin_right = 248.0
+margin_bottom = 36.0
+size_flags_horizontal = 8
+theme = SubResource( 9 )
+text = "Spawn"
+
+[node name="commands" type="HBoxContainer" parent="ui/base/spawn"]
+margin_top = 40.0
+margin_right = 248.0
+margin_bottom = 99.0
+grow_vertical = 0
+mouse_filter = 2
+theme = ExtResource( 3 )
+alignment = 2
+script = SubResource( 10 )
+
+[node name="spawn" type="Button" parent="ui/base/spawn/commands"]
+margin_right = 118.0
+margin_bottom = 59.0
+grow_horizontal = 0
+text = "Friendly"
+flat = true
+
+[node name="spawn_bot" type="Button" parent="ui/base/spawn/commands"]
+margin_left = 148.0
+margin_right = 248.0
+margin_bottom = 59.0
+grow_horizontal = 0
+text = "Enemy"
+flat = true
+
+[connection signal="pressed" from="ui/base/multiplayer/buttons/name" to="ui/base/multiplayer" method="prep_name_player"]
+[connection signal="pressed" from="ui/base/spawn/commands/spawn" to="ui/base/spawn/commands" method="spawn_controlled"]
+[connection signal="pressed" from="ui/base/spawn/commands/spawn_bot" to="ui/base/spawn/commands" method="spawn_bot"]

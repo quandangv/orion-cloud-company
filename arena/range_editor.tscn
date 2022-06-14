@@ -1,0 +1,138 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://fonts/SmoochSans-Regular.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://fonts/SmoochSans-Black.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://fonts/SmoochSans-SemiBold.ttf" type="DynamicFontData" id=3]
+[ext_resource path="res://arena/range_editor.gd" type="Script" id=4]
+
+[sub_resource type="DynamicFont" id=73]
+size = 22
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+extra_spacing_top = -6
+extra_spacing_bottom = -7
+font_data = ExtResource( 2 )
+
+[sub_resource type="StyleBoxEmpty" id=74]
+
+[sub_resource type="DynamicFont" id=48]
+size = 20
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+extra_spacing_top = -3
+extra_spacing_bottom = -4
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=49]
+size = 20
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+extra_spacing_top = -3
+extra_spacing_bottom = -4
+font_data = ExtResource( 3 )
+
+[node name="container" type="HBoxContainer"]
+margin_right = 90.0
+margin_bottom = 28.0
+script = ExtResource( 4 )
+
+[node name="low" type="VBoxContainer" parent="."]
+visible = false
+margin_right = 11.0
+margin_bottom = 28.0
+custom_constants/separation = 0
+
+[node name="add" type="Button" parent="low"]
+margin_right = 11.0
+margin_bottom = 14.0
+mouse_filter = 1
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.337255, 0.796078, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.337255, 0.796078, 1, 0.501961 )
+custom_fonts/font = SubResource( 73 )
+custom_styles/hover = SubResource( 74 )
+custom_styles/pressed = SubResource( 74 )
+custom_styles/focus = SubResource( 74 )
+custom_styles/disabled = SubResource( 74 )
+custom_styles/normal = SubResource( 74 )
+text = "+"
+
+[node name="subtract" type="Button" parent="low"]
+margin_top = 14.0
+margin_right = 11.0
+margin_bottom = 28.0
+mouse_filter = 1
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.337255, 0.796078, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.337255, 0.796078, 1, 0.501961 )
+custom_fonts/font = SubResource( 73 )
+custom_styles/hover = SubResource( 74 )
+custom_styles/pressed = SubResource( 74 )
+custom_styles/focus = SubResource( 74 )
+custom_styles/disabled = SubResource( 74 )
+custom_styles/normal = SubResource( 74 )
+text = "-"
+
+[node name="label" type="Label" parent="."]
+margin_right = 37.0
+margin_bottom = 28.0
+rect_min_size = Vector2( 0, 28 )
+custom_fonts/font = SubResource( 48 )
+text = "green"
+valign = 1
+
+[node name="range" type="Label" parent="."]
+margin_left = 41.0
+margin_top = 5.0
+margin_right = 90.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+custom_fonts/font = SubResource( 49 )
+text = "40-50"
+align = 1
+valign = 1
+
+[node name="high" type="VBoxContainer" parent="."]
+visible = false
+margin_left = 85.0
+margin_right = 96.0
+margin_bottom = 28.0
+custom_constants/separation = 0
+
+[node name="add" type="Button" parent="high"]
+margin_right = 11.0
+margin_bottom = 14.0
+mouse_filter = 1
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.337255, 0.796078, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.337255, 0.796078, 1, 0.501961 )
+custom_fonts/font = SubResource( 73 )
+custom_styles/hover = SubResource( 74 )
+custom_styles/pressed = SubResource( 74 )
+custom_styles/focus = SubResource( 74 )
+custom_styles/disabled = SubResource( 74 )
+custom_styles/normal = SubResource( 74 )
+text = "+"
+
+[node name="subtract" type="Button" parent="high"]
+margin_top = 14.0
+margin_right = 11.0
+margin_bottom = 28.0
+mouse_filter = 1
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.337255, 0.796078, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.337255, 0.796078, 1, 0.501961 )
+custom_fonts/font = SubResource( 73 )
+custom_styles/hover = SubResource( 74 )
+custom_styles/pressed = SubResource( 74 )
+custom_styles/focus = SubResource( 74 )
+custom_styles/disabled = SubResource( 74 )
+custom_styles/normal = SubResource( 74 )
+text = "-"
+
+[connection signal="mouse_entered" from="." to="." method="set_visibility_state" binds= [ true ]]
+[connection signal="mouse_exited" from="." to="." method="set_visibility_state" binds= [ false ]]
+[connection signal="pressed" from="low/add" to="." method="change_low" binds= [ 1 ]]
+[connection signal="pressed" from="low/subtract" to="." method="change_low" binds= [ -1 ]]
+[connection signal="pressed" from="high/add" to="." method="change_high" binds= [ 1 ]]
+[connection signal="pressed" from="high/subtract" to="." method="change_high" binds= [ -1 ]]

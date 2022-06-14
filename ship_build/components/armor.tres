@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=4 format=2]
+
+[ext_resource path="res://ship_build/component.gd" type="Script" id=1]
+[ext_resource path="res://ship_build/components/textures/armor_bottom.tres" type="Texture" id=2]
+[ext_resource path="res://ship_build/components/textures/armor_top.tres" type="Texture" id=3]
+
+[resource]
+script = ExtResource( 1 )
+name = "armor"
+top_texture = ExtResource( 3 )
+bottom_texture = ExtResource( 2 )

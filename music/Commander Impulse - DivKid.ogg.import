@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Commander Impulse - DivKid.ogg-e15f9c8fd1b1e0558dc238d085c378f7.oggstr"
+
+[deps]
+
+source_file="res://music/Commander Impulse - DivKid.ogg"
+dest_files=[ "res://.import/Commander Impulse - DivKid.ogg-e15f9c8fd1b1e0558dc238d085c378f7.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

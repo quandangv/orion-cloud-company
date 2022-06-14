@@ -1,0 +1,6 @@
+/.mono/
+/.import/
+/artworks/*.import
+/classified/
+/build/*
+!/build/butler.sh

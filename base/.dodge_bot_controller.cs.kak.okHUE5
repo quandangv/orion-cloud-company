@@ -1,0 +1,15 @@
+using Godot;
+using System;
+
+public class dodge_bot_controller : Node
+{
+    public override void _Ready()
+    {
+        
+    }
+
+    public override void _Process(float delta)
+    {
+        
+    }
+}

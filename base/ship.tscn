@@ -1,0 +1,271 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://base/ship_mat.tres" type="PhysicsMaterial" id=1]
+[ext_resource path="res://base/thruster.tscn" type="PackedScene" id=2]
+[ext_resource path="res://base/turret.tscn" type="PackedScene" id=4]
+[ext_resource path="res://base/ship.gd" type="Script" id=5]
+[ext_resource path="res://base/collision_damage.gd" type="Script" id=6]
+
+[sub_resource type="CircleShape2D" id=3]
+radius = 1.0
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends Node
+
+signal stats_changed()
+signal design_changed()
+signal explode(component)
+signal component_changed()
+
+onready var parent = get_parent()
+export(PackedScene) var thruster_scene
+export(PackedScene) var turret_scene
+
+var dhits = []
+var hhits = []
+var vhits = []
+var map = []
+var mapsize = 0
+var core_count:int
+var og_core_count:int
+var og_price:float
+var price:float
+var turrets:Array = []
+var real_mass: float
+var og_mass:float
+onready var thruster = parent.get_node_or_null(\"thruster\")
+
+func load_ship(data):
+  if not 'stats' in data:
+    data = ComponentUtils.reanalyze_ship(data)
+  var stats = data[\"stats\"]
+  hhits = data[\"hhits\"]
+  dhits = data[\"dhits\"]
+  vhits = data[\"vhits\"]
+  map = data[\"map\"]
+  mapsize = data[\"mapsize\"]
+  og_core_count = stats[\"core\"]
+  og_price = stats['price']
+  price = og_price
+  parent.init(stats[\"size\"])
+  var turret_pos = data[\"turrets\"]
+  for _i in range(len(turrets), len(turret_pos)):
+    var ins = turret_scene.instance()
+    parent.add_child(ins)
+    turrets.append(ins)
+  for _i in range(len(turret_pos), len(turrets)):
+    turrets.pop_back().queue_free()
+  for i in range(len(map)):
+    var component = map[i]
+    if component != null:
+      component[\"_map_index\"] = i
+      if 'turret' in component['']:
+        component['_squeeze'] = data['turret_rotations'][component['rotation']]
+  emit_signal(\"stats_changed\")
+  emit_signal(\"design_changed\")
+  parent.reset()
+
+func reset():
+  core_count = og_core_count
+  var thrust = 0
+  var turret_count = 0
+  real_mass = 0
+  parent.mark_target = false
+  for component in map:
+    if component == null: continue
+    component['_hp'] = component['hp']
+    real_mass += 1
+    if 'plasma' in component:
+      component['_plasma'] = component['plasma'].duplicate()
+    if 'turret' in component['']:
+      var turret = turrets[turret_count]
+      component['_ref'] = turret
+      turret.init(component)
+      turret.name = \"turret\" + String(turret_count)
+      turret_count += 1
+    elif 'thruster' in component['']:
+      thrust += component['plasma'].supply
+  parent.mass = real_mass
+  og_mass = real_mass
+  if thrust > 0:
+    if thruster == null:
+      var ins = thruster_scene.instance()
+      ins.thrust = thrust
+      ins.name = \"thruster\"
+      parent.add_child(ins)
+      thruster = ins
+    else:
+      thruster.init(thrust)
+  elif thruster != null:
+    thruster.queue_free()
+    thruster = null
+  emit_signal(\"component_changed\")
+
+func get_map(pos):
+  return self.map[pos[0] + pos[1] * mapsize]
+
+func get_pos(component):
+  var index = component['_map_index']
+  return Vector2(index % mapsize, int(index/mapsize))
+
+func get_component(arr, index, damage):
+  for i in range(len(arr)) if index == 1 else range(-1, -len(arr)-1, -1):
+    var component = arr[i]
+    if component['_hp'] > 0:
+      return component
+  return null
+
+func take_damage(angle:float, damage:float):
+  if damage == 0:
+    return
+  assert(damage >= 0)
+  var direction = (int(round((angle - parent.rotation) / PI * 3)) + 6) % 6
+  var component = null
+  match direction:
+    0:
+      component = get_component(hhits[randi() % len(hhits)], -1, damage)
+    3:
+      component = get_component(hhits[randi() % len(hhits)], 1, damage)
+    1:
+      component = get_component(vhits[randi() % len(vhits)], -1, damage)
+    4:
+      component = get_component(vhits[randi() % len(vhits)], 1, damage)
+    2:
+      component = get_component(dhits[randi() % len(dhits)], 1, damage)
+    5:
+      component = get_component(dhits[randi() % len(dhits)], -1, damage)
+  if component:
+    if 'covered' in component:
+      var cover = component['covered']
+      cover.shuffle()
+      for other in cover:
+        other = get_map(other)
+        if other['_hp'] > 0:
+          component = other
+          break
+    assert(component['_hp'] > 0)
+    component['_hp'] -= damage
+    if component['_hp'] <= 0:
+      if Multiplayer.active:
+        rpc(\"receive_component_destroyed\", component[\"_map_index\"], component['_hp'])
+      component_destroyed(component)
+      if component['_hp'] < 0:
+        damage += component['_hp']
+        component['_hp'] = 0
+    if damage > 0:
+      parent.add_border_damage(damage)
+    return damage
+  return 0
+
+puppet func receive_component_destroyed(component_index, hp):
+  var component = map[component_index]
+  component['_hp'] = hp
+  component_destroyed(component)
+
+func component_destroyed(component):
+  SoundPlayer.play_audio(\"explosion\", parent.global_position)
+  parent.inner_damage_accum += 1
+  real_mass -= 1
+  price -= ComponentUtils.component_price.get(component[''], 1)
+  if 'plasma_downstream' in component:
+    change_plasma(component, component['_plasma'].duplicate().mul(-1))
+    emit_signal(\"stats_changed\")
+  match component['']:
+    'thruster':
+      thruster.init(thruster.thrust - component['plasma'].supply)
+    'core':
+      assert(core_count >= 0)
+      core_count -= 1
+      if core_count == 0:
+        parent.ship_destroyed(real_mass == 0)
+    'turret', 'guiding_turret':
+      component['_ref'].hibernate()
+  emit_signal(\"explode\", component)
+  emit_signal(\"component_changed\")
+  if real_mass <= 0:
+    parent.ship_destroyed(true)
+  else:
+    parent.mass = real_mass
+    parent.set_fill_alpha(real_mass / og_mass)
+
+func change_plasma(component, plasma_change):
+  component['_plasma'].add(plasma_change)
+  if '_ref' in component:
+    component['_ref'].init(component)
+  if 'plasma_downstream' in component:
+    var downstream = component['plasma_downstream']
+    if len(downstream) == 1:
+      var comp2 = get_map(downstream[0])
+      if comp2['_hp'] > 0:
+          change_plasma(comp2, plasma_change)
+    else:
+      var pos = get_pos(component)
+      for pos2 in downstream:
+        var comp2 = get_map(pos2)
+        assert(pos in comp2['generators_connected'])
+        var supply = comp2['generators_connected'][pos]
+        plasma_change = comp2['plasma_modifier'].duplicate().mul(supply) if 'plasma_modifier' in comp2 else ComponentUtils.PlasmaStat.create(0, supply)
+        plasma_change.supply = supply
+        change_plasma(comp2, plasma_change)
+"
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends Node2D
+
+var active:bool setget set_active
+export var crosshair_size = 1.2
+export var color = Color.white
+
+onready var parent = get_parent()
+
+func set_active(value):
+  active = value
+  visible = value
+  set_physics_process(active)
+
+func _physics_process(delta):
+  if parent.controller.target_obj and parent.controller.target_obj.is_inside_tree():
+    global_position = parent.controller.target_obj.global_position
+    scale = Vector2(1, 1) * parent.controller.target_obj.size * 1.5
+  else:
+    scale = Vector2.ZERO
+
+func _draw():
+  draw_arc(Vector2.ZERO, 1, 0, PI*2, 30, color, 1, true)
+  draw_line(Vector2.UP*crosshair_size, Vector2.DOWN*crosshair_size, color, 1, true)
+  draw_line(Vector2.LEFT*crosshair_size, Vector2.RIGHT*crosshair_size, color, 1, true)
+"
+
+[node name="ship" type="RigidBody2D"]
+rotation = 3.14159
+z_index = 2
+collision_mask = 3
+physics_material_override = ExtResource( 1 )
+gravity_scale = 0.0
+contacts_reported = 10
+contact_monitor = true
+linear_damp = 0.0
+script = ExtResource( 5 )
+
+[node name="collision" type="CollisionShape2D" parent="."]
+shape = SubResource( 3 )
+disabled = true
+
+[node name="rank" type="Sprite" parent="."]
+visible = false
+rotation = 1.5708
+scale = Vector2( 0.1, 0.1 )
+
+[node name="collision_damage" type="Node" parent="."]
+script = ExtResource( 6 )
+
+[node name="components" type="Node" parent="."]
+script = SubResource( 4 )
+thruster_scene = ExtResource( 2 )
+turret_scene = ExtResource( 4 )
+
+[node name="target_marker" type="Node2D" parent="."]
+script = SubResource( 5 )
+crosshair_size = 0.7
+
+[connection signal="body_entered" from="." to="collision_damage" method="body_entered"]

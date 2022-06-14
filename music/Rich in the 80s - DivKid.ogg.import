@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Rich in the 80s - DivKid.ogg-54de7e14f41b602a2cab1e028e62494d.oggstr"
+
+[deps]
+
+source_file="res://music/Rich in the 80s - DivKid.ogg"
+dest_files=[ "res://.import/Rich in the 80s - DivKid.ogg-54de7e14f41b602a2cab1e028e62494d.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

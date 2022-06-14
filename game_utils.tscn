@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://game_utils.cs" type="Script" id=1]
+
+[node name="game" type="Node2D"]
+script = ExtResource( 1 )
+ship_colors = {
+"enemy": Color( 0.92549, 0.243137, 0.243137, 1 ),
+"friendly": Color( 0.133333, 0.494118, 0.843137, 1 ),
+"junk": Color( 0.388235, 0.388235, 0.388235, 1 ),
+"self": Color( 0.172549, 0.858824, 0.513726, 1 )
+}
+side_layers = {
+"enemy": 1,
+"friendly": 0
+}
+plasma_colors = {
+"enemy": Color( 0.92549, 0.243137, 0.243137, 1 ),
+"friendly": Color( 0.133333, 0.494118, 0.843137, 1 )
+}

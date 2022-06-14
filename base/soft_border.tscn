@@ -1,0 +1,47 @@
+[gd_scene load_steps=4 format=2]
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 10, 1 )
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Area2D
+
+var bodies = []
+var force_norm:Vector2
+export var force = 5000
+export var velocity_multiplier:float = 0.02
+
+func _ready():
+  connect(\"body_entered\", self, \"body_entered\")
+  connect(\"body_exited\", self, \"body_exited\")
+  force_norm = Vector2.RIGHT.rotated(global_rotation)
+  force *= force_norm
+
+func body_entered(body):
+  if body is RigidBody2D:
+    bodies.append(body)
+
+func body_exited(body):
+  bodies.erase(body)
+
+func _physics_process(delta):
+  for body in bodies:
+    body.apply_central_impulse(force * delta * exp(-force_norm.dot(body.linear_velocity) * velocity_multiplier))
+"
+
+[sub_resource type="RectangleShape2D" id=4]
+extents = Vector2( 50, 1 )
+
+[node name="border" type="StaticBody2D"]
+scale = Vector2( 1, 1000 )
+
+[node name="shape" type="CollisionShape2D" parent="."]
+shape = SubResource( 2 )
+
+[node name="force" type="Area2D" parent="."]
+position = Vector2( 60, 0 )
+script = SubResource( 3 )
+velocity_multiplier = 0.003
+
+[node name="shape" type="CollisionShape2D" parent="force"]
+shape = SubResource( 4 )

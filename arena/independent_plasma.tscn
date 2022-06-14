@@ -1,0 +1,57 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://base/plasma.tscn" type="PackedScene" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends \"res://base/guided_plasma.gd\"
+
+export var accidental_activation_rate = 0.5
+
+func degradation_rate():
+  return 0
+
+func body_entered(other):
+  if GameUtils.is_enemy(side, other) and (target.get_ref() != null or randf() < accidental_activation_rate):
+    .body_entered(other)
+"
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends CollisionShape2D
+
+func set_disabled(value):
+  print('disabled')
+  .set_disabled(value)
+"
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Node
+
+var target
+var distance:float = 10
+var speed:float = 0.1
+onready var parent = get_parent()
+
+func idle(delta):
+  var diff = target.global_position - parent.global_position
+  var length = diff.length()
+  var normalized = diff / length if length > 0 else Vector2.RIGHT.rotated(randf()*PI*2)
+  var orbit_diff = length - distance
+  var dir = normalized * (orbit_diff - parent.linear_velocity.dot(normalized)*0.1) - parent.linear_velocity*orbit_diff*0.01\\
+    + normalized.tangent() * speed / (orbit_diff * orbit_diff*0.0001 + 1)
+  parent.steer(dir, delta)
+"
+
+[node name="polygon" instance=ExtResource( 1 )]
+collision_layer = 4
+collision_mask = 2
+script = SubResource( 1 )
+thrust = 60.0
+
+[node name="collision" parent="." index="0"]
+disabled = false
+script = SubResource( 3 )
+
+[node name="orbiting_controller" type="Node" parent="." index="2"]
+script = SubResource( 2 )
+
+[connection signal="idle" from="." to="orbiting_controller" method="idle"]

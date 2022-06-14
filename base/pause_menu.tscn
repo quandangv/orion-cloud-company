@@ -1,0 +1,166 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://shaders/blur.shader" type="Shader" id=1]
+[ext_resource path="res://icons/exit.svg" type="Texture" id=2]
+[ext_resource path="res://icons/resume.svg" type="Texture" id=3]
+[ext_resource path="res://flat_ui_theme.tres" type="Theme" id=4]
+[ext_resource path="res://ui_theme.tres" type="Theme" id=5]
+[ext_resource path="res://base/pause.gd" type="Script" id=6]
+[ext_resource path="res://icons/pause.svg" type="Texture" id=7]
+
+[sub_resource type="GDScript" id=12]
+script/source = "extends Button
+
+func reset():
+  modulate = Color.white
+  self.hint_tooltip = \"\"
+
+func multiplayer_warning():
+  modulate = Color.red
+  self.hint_tooltip = \"pausing don't have an effect on other players during multiplayer\"
+"
+
+[sub_resource type="GDScript" id=8]
+script/source = "extends Button
+
+const blur_margin = 8
+
+func _ready():
+  $confirm.connect(\"confirmed\", self, \"exit\")
+
+func _pressed():
+  $confirm.popup_centered()
+  $confirm/blur.margin_left = -blur_margin
+  $confirm/blur.margin_top = -blur_margin
+  $confirm/blur.margin_right = blur_margin
+  $confirm/blur.margin_bottom = blur_margin
+
+func exit():
+  SceneManager.fade_load(\"sandbox\", \"main_menu\")
+  Multiplayer.close_connection()
+"
+
+[sub_resource type="ShaderMaterial" id=9]
+shader = ExtResource( 1 )
+shader_param/amount = 1.531
+
+[sub_resource type="Animation" id=11]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("exit:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ false ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("exit:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=10]
+resource_name = "pause_menu"
+length = 0.5
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("exit:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.05 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ false, true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("exit:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
+}
+
+[node name="pause_menu" type="VBoxContainer"]
+pause_mode = 2
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -156.0
+margin_bottom = 124.0
+grow_horizontal = 0
+mouse_filter = 2
+theme = ExtResource( 4 )
+script = ExtResource( 6 )
+resume_icon = ExtResource( 3 )
+
+[node name="pause" type="Button" parent="."]
+margin_left = 16.0
+margin_right = 156.0
+margin_bottom = 59.0
+grow_horizontal = 0
+size_flags_horizontal = 8
+size_flags_vertical = 4
+toggle_mode = true
+text = "PAUSE"
+icon = ExtResource( 7 )
+flat = true
+script = SubResource( 12 )
+
+[node name="exit" type="Button" parent="."]
+visible = false
+margin_left = 48.0
+margin_top = 63.0
+margin_right = 156.0
+margin_bottom = 122.0
+grow_horizontal = 0
+size_flags_horizontal = 8
+text = "EXIT"
+icon = ExtResource( 2 )
+script = SubResource( 8 )
+
+[node name="confirm" type="ConfirmationDialog" parent="exit"]
+margin_left = -594.0
+margin_top = 239.0
+margin_right = -89.0
+margin_bottom = 383.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource( 5 )
+window_title = ""
+dialog_text = "You are exiting to the main menu"
+
+[node name="blur" type="ColorRect" parent="exit/confirm"]
+show_behind_parent = true
+material = SubResource( 9 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 67.0
+margin_right = -8.0
+margin_bottom = -77.0
+mouse_filter = 2
+
+[node name="anim" type="AnimationPlayer" parent="."]
+anims/RESET = SubResource( 11 )
+anims/pause_menu = SubResource( 10 )
+
+[connection signal="toggled" from="pause" to="." method="pause_changed"]

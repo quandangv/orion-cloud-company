@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="48"
+   height="56"
+   viewBox="0 0 12.7 14.816666"
+   version="1.1"
+   id="svg30616"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
+   sodipodi:docname="reset.svg"
+   inkscape:export-filename="/home/quan/ssa-new/game/reset.png"
+   inkscape:export-xdpi="10.24"
+   inkscape:export-ydpi="10.24"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview30618"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     units="px"
+     inkscape:zoom="3.2684825"
+     inkscape:cx="-79.08869"
+     inkscape:cy="68.074405"
+     inkscape:window-width="1880"
+     inkscape:window-height="1000"
+     inkscape:window-x="20"
+     inkscape:window-y="20"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs30613" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-94.573463,-96.218104)">
+    <path
+       id="path35169"
+       style="fill:none;stroke:#000000;stroke-width:1.5875;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.5"
+       d="m 100.09136,106.41956 c 2.61836,2.33139 3.10278,1.73544 -0.635572,3.09693 m 4.152952,-2.78574 c 1.27128,-1.22269 2.27507,-3.93348 1.09269,-5.56229 -4.793622,-6.60353 -13.414402,6.55521 -3.50703,7.03409"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       id="path34417"
+       style="fill:none;stroke:#ffffff;stroke-width:0.52916667;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 100.09136,106.41956 c 2.61836,2.33139 3.10278,1.73544 -0.635572,3.09693 m 4.152952,-2.78574 c 1.27128,-1.22269 2.27507,-3.93348 1.09269,-5.56229 -4.793622,-6.60353 -13.414402,6.55521 -3.50703,7.03409"
+       sodipodi:nodetypes="ccccc" />
+  </g>
+</svg>

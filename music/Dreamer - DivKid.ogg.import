@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Dreamer - DivKid.ogg-7559491202e85e433ce8d31e316e309e.oggstr"
+
+[deps]
+
+source_file="res://music/Dreamer - DivKid.ogg"
+dest_files=[ "res://.import/Dreamer - DivKid.ogg-7559491202e85e433ce8d31e316e309e.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

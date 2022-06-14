@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://arena/asteroid_base.tscn" type="PackedScene" id=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+var target:Node2D
+onready var parent = get_parent()
+export var thrust:float = 4
+const thrust_to_rotate_speed =1
+const thrust_to_torque = 500
+const thrust_to_force = 15
+const force_to_speed = 1
+const thrust_to_speed = thrust_to_force * force_to_speed
+
+func _physics_process(delta):
+  var direction
+  var velocity = parent.linear_velocity
+  var speed = velocity.length()
+  var mass = parent.mass
+  var diff = target.global_position - parent.global_position
+  var target_angle = (diff - velocity.project(diff.tangent()) * 2 - velocity*0.1).angle()
+  parent.global_rotation = target_angle
+
+  direction = Vector2.RIGHT.rotated(parent.global_rotation)
+  var overspeed = speed - thrust * thrust_to_speed
+  if overspeed > 0:
+    direction -= velocity.normalized() * overspeed * 0.5
+  parent.apply_central_impulse(direction * thrust * thrust_to_force * delta * mass)
+"
+
+[node name="polygon" instance=ExtResource( 2 )]
+side_count = 3
+
+[node name="chase" type="Node" parent="." index="2"]
+script = SubResource( 1 )

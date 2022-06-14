@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://arena/resource_dropper.gd" type="Script" id=1]
+[ext_resource path="res://base/asteroid.tscn" type="PackedScene" id=2]
+
+[node name="polygon" instance=ExtResource( 2 )]
+collision_mask = 2
+side = "enemy"
+
+[node name="resource" type="Node" parent="." index="1"]
+script = ExtResource( 1 )
+
+[connection signal="destroyed_by_" from="." to="resource" method="spawn_resource"]

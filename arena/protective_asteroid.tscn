@@ -1,0 +1,51 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://arena/asteroid_base.tscn" type="PackedScene" id=1]
+[ext_resource path="res://arena/earthy_mat.tres" type="PhysicsMaterial" id=2]
+[ext_resource path="res://base/collision_damage.gd" type="Script" id=3]
+[ext_resource path="res://arena/minion.gd" type="Script" id=4]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+onready var parent:RigidBody2D = get_parent()
+var force = 200
+var distance:float = 30
+var target
+var speed = 60
+
+func _physics_process(delta):
+  if target:
+    var diff = target.global_position - parent.global_position
+    var length = diff.length()
+    var normalized = diff / length if length > 0 else Vector2.RIGHT.rotated(randf()*PI*2)
+    var orbit_diff = length - distance
+    var dir = -parent.linear_velocity*(parent.linear_velocity.length_squared()*0.01)
+    if abs(orbit_diff) < 1:
+      dir += normalized.tangent() * (speed / distance)
+    else:
+      dir += normalized * orbit_diff
+    parent.apply_central_impulse(dir.normalized()*(force*delta))
+"
+
+[node name="polygon" instance=ExtResource( 1 )]
+collision_layer = 4
+collision_mask = 7
+physics_material_override = ExtResource( 2 )
+contacts_reported = 10
+contact_monitor = true
+side = "friendly"
+side_count = 3
+
+[node name="orbiting_controller" type="Node" parent="." index="2"]
+script = SubResource( 1 )
+
+[node name="collision_damage" type="Node" parent="." index="3"]
+script = ExtResource( 3 )
+sound_base_frequency = 1.2
+
+[node name="minion" type="Node" parent="." index="4"]
+script = ExtResource( 4 )
+
+[connection signal="area_interact" from="." to="minion" method="area_interact"]
+[connection signal="body_entered" from="." to="collision_damage" method="body_entered"]

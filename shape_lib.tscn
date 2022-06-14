@@ -1,0 +1,357 @@
+[gd_scene load_steps=5 format=2]
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends Node
+
+onready var bone = $bone
+onready var shape = $shape
+onready var circle_seg = $circle_seg
+export var circle_resolution = 8
+
+func circle_point_count(radius:float):
+  return ceil(circle_resolution*sqrt(radius))
+
+func arc_point_count(radius:float, angle:float):
+  return ceil(circle_resolution*sqrt(radius)*angle/PI/2)+1
+
+func make_arc(array, radius:float, from_angle:float, angle_change:float):
+  var point_count = arc_point_count(radius, abs(angle_change))
+  var step = angle_change/point_count
+  for i in range(point_count+1):
+    array.append(Vector2(radius, 0).rotated(from_angle + step*i))
+
+func make_ring_sector(outer_radius:float, inner_radius:float, from_angle:float, angle_change:float):
+  angle_change = clamp(angle_change, 0, PI*2)
+  var points = []
+  make_arc(points, outer_radius, from_angle, angle_change)
+  make_arc(points, inner_radius, from_angle + angle_change, -angle_change)
+  return points
+
+func draw_ring_sector(node, outer_radius, inner_radius, from_angle, angle_change, color):
+  var points = make_ring_sector(outer_radius, inner_radius, from_angle, angle_change)
+  node.draw_colored_polygon(points, color, PoolVector2Array(), null, null, true)
+
+func draw_circle_outline(node, radius, color, center = Vector2.ZERO):
+  node.draw_arc(center, radius, 0, PI*2, circle_point_count(radius), color, 1, true)
+"
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+export var step = 0.02
+const min_side_count = 3
+const max_side_count = 6
+var step_count:int
+var templates = []
+
+func _ready():
+  step_count = ceil(1/step)
+  templates.resize(step_count * (max_side_count - min_side_count + 1))
+
+func power2sharpness(value:float):
+  value = exp((1-value)/5)
+  return -2*(value-1)/(value+1)
+
+func sharpness2power(value:float):
+  return -log((2-value)/(value+2))*5+1
+
+func make(size, sharpness:float, side_count, resolution:float = 1):
+  assert(side_count >= min_side_count)
+  assert(side_count <= max_side_count)
+  sharpness = clamp(sharpness, 0, 0.99999)
+  var sharpness_index = floor(sharpness/step)
+  sharpness = step * sharpness_index
+  sharpness_index += (side_count - min_side_count) * step_count
+  var vertex_count = max(round(sqrt(abs(size)*resolution/side_count*2))*2, 1)
+  var sharpness_arr = templates[sharpness_index]
+  if sharpness_arr == null:
+    sharpness_arr = []
+    templates[sharpness_index] = sharpness_arr
+  if len(sharpness_arr) < vertex_count:
+    sharpness_arr.resize(vertex_count)
+  var template = sharpness_arr[vertex_count-1]
+  if template == null:
+    template = get_unit_shape(sharpness, side_count, vertex_count)
+    sharpness_arr[vertex_count-1] = template
+  var points = template.duplicate()
+  for i in range(len(points)):
+    points[i] *= size
+  return points
+
+func signed_pow(a, b):
+  if a < 0:
+    return -pow(-a, b)
+  return pow(a, b)
+
+func smooth_step(x:float, power:float):
+  var constant = 1
+  if power < 2:
+    power = 4/power
+    x+=1
+    constant = 0
+  return signed_pow(2*asin(fmod(x, 2) - 1)/PI, sqrt(power)/2) + floor(x/2)*2 + constant
+
+const sin30 = sqrt(3)/2
+func get_unit_shape(sharpness:float, side_count:int, vertex_count:int):
+  var power = sharpness2power(sharpness)
+  var step_count = vertex_count*side_count
+  var step = float(side_count*2)/step_count
+  var points = []
+  match side_count:
+    3:
+      power = 1+(power-1)*0.75
+      for i in range(step_count):
+        var theta = smooth_step(i*step, power)/side_count*PI
+        var floored = theta - fmod(theta, PI*2/3) - PI*2/3
+        theta = theta - fmod(theta, PI*2/3)/2 + PI/6
+        var c = cos(theta)
+        var s = sin(theta) * sin30
+        var coord1 = max(c, 0)
+        var coord2 = max(-c/2 - s, 0)
+        var coord3 = max(-c/2 + s, 0)
+        var length = 1/pow(pow(abs(coord1), power) + pow(abs(coord2), power) + pow(abs(coord3), power), 1/power)
+        points.append((Vector2(length, 0).rotated(theta) + Vector2(2.0/3, 0).rotated(floored))*1.1)
+    6:
+      for i in range(step_count):
+        var theta = smooth_step(i*step, power)/side_count*PI
+        var c = cos(theta)
+        var s = sin(theta) * sin30
+        var coord1 = c
+        var coord2 = -c/2 - s
+        var coord3 = -c/2 + s
+        var length = 1/pow(pow(abs(coord1), power) + pow(abs(coord2), power) + pow(abs(coord3), power), 1/power)
+        points.append(Vector2(length, 0).rotated(theta)/pow(2, 1-1/power)*sqrt(3))
+    4:
+      for i in range(step_count):
+        var theta = smooth_step(i*step, power)/side_count*PI
+        var length = 1/pow(pow(abs(sin(theta)), power) + pow(abs(cos(theta)), power), 1/power)
+        points.append(Vector2(length, 0).rotated(theta))
+  return points
+"
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Node
+
+export var radius_step = 0.1
+const max_length = 100
+export var pre_angle_step = 1
+export var width:float = 2
+var templates = []
+var width_template
+
+func _ready():
+  width_template = []
+  var step_count = ceil(3*sqrt(width))
+  var step = PI / step_count
+  for i in range(0, step_count+1):
+    width_template.append(Vector2(width, 0).rotated(PI/2 + i*step))
+
+func calc_angle(pre_angle:float, radius:float):
+  return -2*(radius-width)/pre_angle + PI/2
+
+func get_length(angle:float, radius:float):
+  return radius*cos(angle) + 2*tan(angle)*(radius*sin(angle) - width)
+
+func get_template(radius:float, length):
+  var radius_index = ceil(radius/radius_step)
+  radius = radius_index*radius_step
+  if len(templates) < radius_index:
+    templates.resize(radius_index)
+  var template_list = templates[radius_index-1]
+  if template_list == null:
+    template_list = []
+    var points = []
+    var step_count = ceil(6*sqrt(radius))
+    var step = PI*2 / step_count
+    for i in range(step_count):
+      points.append(Vector2(radius, 0).rotated(i*step))
+    template_list.append([0, points])
+    for i in range(-floor(radius / pre_angle_step), floor(radius / pre_angle_step)):
+      var template_length = i*pre_angle_step
+      var angle = acos(template_length/radius)
+      points = []
+      step_count = ceil(6*sqrt(radius)*(1-angle/PI))+1
+      step = (PI - angle)*2 / step_count
+      for j in range(1, step_count):
+        points.append(Vector2(radius, 0).rotated(angle + j*step))
+      template_list.append([template_length, points])
+    var pre_angle = floor(radius / pre_angle_step) * pre_angle_step
+    if pre_angle < max_length and radius != width:
+      fill_templates_till_max(template_list, radius, pre_angle)
+    templates[radius_index-1] = template_list
+  if length == null:
+    return template_list[0][1]
+#  assert(length < max_length)
+  var length_index = max(round(length / pre_angle_step - floor(radius/pre_angle_step)), 0) + 1
+  var length_diff = 0
+  while true:
+    if length_index >= len(template_list):
+      return template_list.back()[1]
+    if template_list[length_index]:
+      length_diff = length - template_list[length_index][0]
+      if length_diff < 0.5:
+        break
+    length_index += 1
+  if length_diff > -3*pre_angle_step:
+    return template_list[length_index][1]
+
+func fill_templates_till_max(list, radius:float, pre_angle:float):
+  assert(len(list) == pre_angle/pre_angle_step + floor(radius/pre_angle_step) + 1)
+  while true:
+    var angle = calc_angle(pre_angle, radius)
+    var result = forward(radius, angle)
+    if result and result[0] > max_length:
+      break
+    list.append(result)
+    pre_angle += pre_angle_step
+
+func make(bulb_radius1:float, bulb_radius2:float, length:float):
+  var center2 = Vector2(length, 0)
+  if bulb_radius1 - bulb_radius2 >= length:
+    return get_template(bulb_radius1, null)
+  if bulb_radius2 - bulb_radius1 >= length:
+    var points = get_template(bulb_radius2, null).duplicate()
+    for i in range(len(points)):
+      points[i] = points[i] + center2
+    return points
+  var length1 = (bulb_radius1*bulb_radius1-bulb_radius2*bulb_radius2+length*length) / (2*length)
+  var template1 = get_template(bulb_radius1, length1)
+  var template2 = get_template(bulb_radius2, length - length1)
+  var result = template1.duplicate()
+  var actual_width = sqrt(bulb_radius1*bulb_radius1 - length1*length1) if length1 < bulb_radius1 else width
+  result.append(Vector2(length1, -actual_width))
+  for point in template2:
+    result.append(center2 - point)
+  result.append(Vector2(length1, actual_width))
+  return result
+
+func forward(radius:float, angle:float):
+  angle = clamp(angle, 0.001, PI-0.001)
+  var points = []
+  var step_count = ceil(6*sqrt(radius)*(1-angle/PI))+1
+  var step = (PI - angle)*2 / step_count
+  for i in range(1, step_count):
+    points.append(Vector2(radius, 0).rotated(angle + i*step))
+#  var y0 = radius*sin(angle)
+#  var slope0 = -1/tan(angle)
+#  var change_factor = -4*slope0*slope0*slope0/(9*(y0-width)*(y0-width))
+#  var x0 = radius * cos(angle)
+#  step = sqrt(-slope0/change_factor)
+#  if step > 0:
+#    step_count = ceil(step*0.08)
+#    step = step / step_count
+#    step_count = min(200, step_count)
+#    for i in range(step_count):
+#      var x = i*step
+#      var point = Vector2(x0 + x, change_factor*x*x*x/3 + slope0*x + y0)
+#      points.push_front(point)
+#      point.y *= -1
+#      points.push_back(point)
+
+  var y0 = radius*sin(angle)
+  if y0 == width:
+    return null
+  var slope0 = -1/tan(angle)
+  var change_factor = slope0*slope0*0.5/(y0-width)
+  var x0 = radius * cos(angle)
+  step = -slope0/change_factor
+  if step > 0:
+    step_count = ceil((step+radius)*0.2)
+    step = step / step_count
+    assert(step_count < 500)
+    for i in range(step_count):
+      var x = i*step
+      var point = Vector2(x0 + x, change_factor/2*x*x + slope0*x + y0)
+      points.push_front(point)
+      point.y *= -1
+      points.push_back(point)
+    return [x0+step*step_count, points]
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends Node
+
+var angle_lookup = []
+export var ratio_step = 0.005
+onready var parent = get_parent()
+
+func inverse_e_minus_sin_e(m):
+  \"\"\"https://en.wikipedia.org/wiki/Kepler%27s_equation#Fixed-point_iteration\"\"\"
+  var e = m
+  for _i in range(16):
+    e = m + sin(e)
+  return e
+
+func _ready():
+  angle_lookup.resize(ceil(1/ratio_step)+1)
+
+func lookup_angle(ratio):
+  var ratio_index = round(ratio/ratio_step)
+  if angle_lookup[ratio_index] == null:
+    angle_lookup[ratio_index] = inverse_e_minus_sin_e(ratio*2*PI)
+  return angle_lookup[ratio_index]
+
+func make(radius:float, ratio:float, center_angle:float = -PI/2):
+  var angle = lookup_angle(ratio) # this calculates the angle of the circular segment that would have the area specified by the progress
+  var starting_angle = (PI*2 - angle) / 2 + center_angle
+  var sector_count = parent.arc_point_count(radius, angle)
+  if sector_count >= 2:
+    var step = angle / sector_count
+    var points = []
+    for i in range(sector_count+1):
+      points.push_back(Vector2(radius, 0).rotated(i*step + starting_angle))
+    return points
+  return []
+
+func make_min(radius:float, ratio:float, min_ratio:float, center_angle:float = -PI/2):
+  ratio = clamp(ratio, 0, 1)
+  min_ratio = clamp(min_ratio, 0, 1)
+  var radius_factor = sqrt(radius)
+  var angle = lookup_angle(ratio)
+  var width_angle = lookup_angle(min_ratio)
+  if ceil(parent.circle_resolution*radius_factor * (1-angle / PI/2)) < 2:
+    return make(radius, 1-min_ratio, center_angle+PI)
+  if ceil(parent.circle_resolution*radius_factor * width_angle / PI/2) < 2:
+    return make(radius, ratio, center_angle)
+  width_angle = (angle - width_angle)/2
+  var starting_angle = (PI*2 - angle) / 2
+  var point_count = ceil(parent.circle_resolution * radius_factor * angle / (PI*2))
+  if point_count >= 2:
+    var step = width_angle / point_count
+    var points = []
+    for i in range(point_count+1):
+      var point = Vector2(radius, 0).rotated(i*step + starting_angle + center_angle)
+      points.push_back(point)
+      point.x = -point.x
+      points.push_front(point)
+    return points
+  return []
+
+func draw(node, radius, ratio, color):
+  var points = make(radius, ratio)
+  if points != null:
+    if points:
+      node.draw_colored_polygon(points, color)
+  else:
+    node.draw_circle(Vector2.ZERO, radius, color)
+
+func draw_min(node, radius, ratio, min_ratio, color):
+  var points = make_min(radius, ratio, min_ratio)
+  if points != null:
+    if points:
+      node.draw_colored_polygon(points, color)
+  else:
+    node.draw_circle(Vector2.ZERO, radius, color)
+"
+
+[node name="shape_lib" type="Node"]
+script = SubResource( 2 )
+
+[node name="shape" type="Node" parent="."]
+script = SubResource( 1 )
+
+[node name="bone" type="Node" parent="."]
+script = SubResource( 3 )
+
+[node name="circle_seg" type="Node" parent="."]
+script = SubResource( 4 )

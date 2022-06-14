@@ -1,0 +1,129 @@
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://base/plasma_pool.gd" type="Script" id=1]
+[ext_resource path="res://base/plasma.tscn" type="PackedScene" id=2]
+[ext_resource path="res://base/object_pool.gd" type="Script" id=3]
+[ext_resource path="res://base/guided_plasma.tscn" type="PackedScene" id=4]
+[ext_resource path="res://arena/resource_bit.tscn" type="PackedScene" id=5]
+[ext_resource path="res://arena/resource_info.gd" type="Script" id=7]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node
+
+onready var plasma = {\"normal\": $normal_plasma, \"guided\": $guided_plasma}
+onready var resource = $resource
+"
+
+[sub_resource type="GDScript" id=7]
+resource_local_to_scene = true
+script/source = "extends Node
+
+onready var pool = $pool
+export(Array, Resource) var info
+var colors = {}
+
+func _ready():
+  var arr = info
+  info = {}
+  for type in arr:
+    info[type.name] = type
+    colors[type.name] = type.color
+
+func spawn_bit(position, velocity, size, side_count, type):
+  var obj = pool.get_object()
+  obj.global_position = position
+  obj.init(velocity, size, side_count, type)
+  return obj
+
+func spawn_amount(type, amount, source):
+  type = info[type]
+  var mass = type.rand_chunk_mass()
+  if mass >= amount:
+    if amount > type.chunk_mass_range.x:
+      call_deferred(\"spawn_randomized\", type, amount, source)
+      return
+    else:
+      mass = type.chunk_mass_range.x
+  while true:
+    if randf() < amount / mass:
+      call_deferred(\"spawn_randomized\", type, mass, source)
+    if amount > mass:
+      amount -= mass
+      mass = type.rand_chunk_mass()
+    else:
+      break
+
+func spawn_randomized(type, amount, source):
+  var shape_type = int(type.shape)
+  var rand_dir = Vector2(sqrt(randf()), 0).rotated(randf()*2*PI)
+  var velocity = source.linear_velocity + rand_dir * source.linear_velocity.length()*0.3
+  var bit = spawn_bit(source.global_position, velocity, sqrt(amount), shape_type, type)
+  bit.global_rotation = source.global_rotation
+"
+
+[sub_resource type="Resource" id=2]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "capsule"
+color = Color( 0, 1, 0.298039, 1 )
+chunk_mass_range = Vector2( 6, 7 )
+shape = 0
+
+[sub_resource type="Resource" id=3]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "dirt"
+color = Color( 0.466667, 0.211765, 0.141176, 1 )
+chunk_mass_range = Vector2( 2, 30 )
+shape = 4
+
+[sub_resource type="Resource" id=4]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "hydro"
+color = Color( 0.329412, 0.729412, 1, 0.501961 )
+chunk_mass_range = Vector2( 2, 30 )
+shape = 0
+
+[sub_resource type="Resource" id=5]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "iron"
+color = Color( 0.298039, 0.313726, 0.333333, 1 )
+chunk_mass_range = Vector2( 2, 30 )
+shape = 4
+
+[sub_resource type="Resource" id=6]
+resource_local_to_scene = true
+script = ExtResource( 7 )
+name = "rock"
+color = Color( 0.878431, 0.894118, 0.917647, 1 )
+chunk_mass_range = Vector2( 2, 30 )
+shape = 4
+
+[node name="pools" type="Node"]
+script = SubResource( 1 )
+
+[node name="normal_plasma" type="Node" parent="."]
+script = ExtResource( 1 )
+plasma_size = 2.0
+
+[node name="pool" type="Node" parent="normal_plasma"]
+script = ExtResource( 3 )
+scene = ExtResource( 2 )
+
+[node name="guided_plasma" type="Node" parent="."]
+script = ExtResource( 1 )
+plasma_size = 2.0
+
+[node name="pool" type="Node" parent="guided_plasma"]
+script = ExtResource( 3 )
+scene = ExtResource( 4 )
+
+[node name="resource" type="Node" parent="."]
+script = SubResource( 7 )
+info = [ SubResource( 2 ), SubResource( 3 ), SubResource( 4 ), SubResource( 5 ), SubResource( 6 ) ]
+
+[node name="pool" type="Node" parent="resource"]
+script = ExtResource( 3 )
+scene = ExtResource( 5 )

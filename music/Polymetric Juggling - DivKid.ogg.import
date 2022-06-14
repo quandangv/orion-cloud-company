@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Polymetric Juggling - DivKid.ogg-54d4c77346914c760a943075d216de76.oggstr"
+
+[deps]
+
+source_file="res://music/Polymetric Juggling - DivKid.ogg"
+dest_files=[ "res://.import/Polymetric Juggling - DivKid.ogg-54d4c77346914c760a943075d216de76.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

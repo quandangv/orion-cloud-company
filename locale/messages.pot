@@ -1,0 +1,168 @@
+msgid ""
+msgstr ""
+
+msgid "core"
+msgstr ""
+
+msgid "core_help"
+msgstr ""
+
+msgid "supercore"
+msgstr ""
+
+msgid "supercore_help"
+msgstr ""
+
+msgid "pseudocore"
+msgstr ""
+
+msgid "pseudocore_help"
+msgstr ""
+
+msgid "radar"
+msgstr ""
+
+msgid "radar_help"
+msgstr ""
+
+msgid "thruster"
+msgstr ""
+
+msgid "thruster_help"
+msgstr ""
+
+msgid "superthruster"
+msgstr ""
+
+msgid "superthruster_help"
+msgstr ""
+
+msgid "megathruster"
+msgstr ""
+
+msgid "megathruster_help"
+msgstr ""
+
+msgid "generator"
+msgstr ""
+
+msgid "generator_help"
+msgstr ""
+
+msgid "energizer"
+msgstr ""
+
+msgid "energizer_help"
+msgstr ""
+
+msgid "turret"
+msgstr ""
+
+msgid "turret_help"
+msgstr ""
+
+msgid "superturret"
+msgstr ""
+
+msgid "superturret_help"
+msgstr ""
+
+msgid "megaturret"
+msgstr ""
+
+msgid "megaturret_help"
+msgstr ""
+
+msgid "shield"
+msgstr ""
+
+msgid "shield_help"
+msgstr ""
+
+msgid "supershield"
+msgstr ""
+
+msgid "supershield_help"
+msgstr ""
+
+msgid "armor"
+msgstr ""
+
+msgid "armor_help"
+msgstr ""
+
+msgid "superarmor"
+msgstr ""
+
+msgid "superarmor_help"
+msgstr ""
+
+msgid "collector"
+msgstr ""
+
+msgid "collector_help"
+msgstr ""
+
+msgid "assembler"
+msgstr ""
+
+msgid "assembler_help"
+msgstr ""
+
+msgid "thrust"
+msgstr ""
+
+msgid "regeneration"
+msgstr ""
+
+msgid "boost"
+msgstr ""
+
+msgid "force"
+msgstr ""
+
+msgid "focus"
+msgstr ""
+
+msgid "map_detail"
+msgstr ""
+
+msgid "reflect"
+msgstr ""
+
+msgid "assembly"
+msgstr ""
+
+msgid "multitask"
+msgstr ""
+
+msgid "absorb"
+msgstr ""
+
+msgid "plasma_supply"
+msgstr ""
+msgid "plasma_output"
+msgstr ""
+msgid "plasma_power"
+msgstr ""
+
+msgid "size"
+msgstr ""
+
+msgid "material_supply"
+msgstr ""
+msgid "material_output"
+msgstr ""
+
+msgid "need_plasma_output"
+msgstr ""
+msgid "need_plasma_supply"
+msgstr ""
+
+msgid "need_material_output"
+msgstr ""
+msgid "need_material_supply"
+msgstr ""
+
+msgid "Rotate"
+msgstr ""

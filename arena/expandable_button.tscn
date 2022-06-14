@@ -1,0 +1,51 @@
+[gd_scene format=2]
+
+[node name="expandable" type="HBoxContainer"]
+margin_left = 588.0
+margin_right = 663.0
+margin_bottom = 70.0
+mouse_filter = 0
+custom_constants/separation = 0
+
+[node name="popup" type="Control" parent="."]
+visible = false
+show_behind_parent = true
+margin_right = 25.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 25, 0 )
+mouse_filter = 1
+
+[node name="button" type="Button" parent="popup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 35.0
+rect_min_size = Vector2( 75, 0 )
+rect_pivot_offset = Vector2( 35, 37.5 )
+mouse_filter = 1
+size_flags_vertical = 3
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.427451, 0.843137, 1, 1 )
+custom_colors/font_color_pressed = Color( 0.427451, 0.843137, 1, 0.752941 )
+
+[node name="text" type="Label" parent="popup/button"]
+anchor_top = 0.5
+anchor_bottom = 0.5
+margin_left = -17.0
+margin_top = -14.0
+margin_right = 43.0
+margin_bottom = 14.0
+rect_rotation = -90.0
+rect_pivot_offset = Vector2( 30, 14 )
+text = "more"
+align = 1
+
+[node name="button" type="Button" parent="."]
+margin_right = 50.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 50, 0 )
+mouse_filter = 1
+
+[connection signal="mouse_exited" from="." to="popup" method="set_visible" binds= [ false ]]
+[connection signal="mouse_entered" from="popup/button" to="popup" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="popup/button" to="popup" method="set_visible" binds= [ false ]]
+[connection signal="mouse_entered" from="button" to="popup" method="set_visible" binds= [ true ]]

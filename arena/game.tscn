@@ -1,0 +1,2875 @@
+[gd_scene load_steps=112 format=2]
+
+[ext_resource path="res://backgrounds/galaxy.tscn" type="PackedScene" id=1]
+[ext_resource path="res://base/tracker.gd" type="Script" id=2]
+[ext_resource path="res://base/ship.tscn" type="PackedScene" id=3]
+[ext_resource path="res://base/object_pool.gd" type="Script" id=4]
+[ext_resource path="res://arena/stash.gd" type="Script" id=5]
+[ext_resource path="res://arena/asteroid_stat.gd" type="Script" id=6]
+[ext_resource path="res://base/input_controller.gd" type="Script" id=7]
+[ext_resource path="res://base/soft_border.tscn" type="PackedScene" id=8]
+[ext_resource path="res://base/aimed_asteroid_spawner.gd" type="Script" id=9]
+[ext_resource path="res://arena/asteroid.tscn" type="PackedScene" id=10]
+[ext_resource path="res://base/positioner.gd" type="Script" id=11]
+[ext_resource path="res://arena/combined_positioner.gd" type="Script" id=12]
+[ext_resource path="res://arena/following_asteroid.tscn" type="PackedScene" id=13]
+[ext_resource path="res://arena/following_asteroid_spawner.gd" type="Script" id=14]
+[ext_resource path="res://base/bot_controller.tscn" type="PackedScene" id=15]
+[ext_resource path="res://base/anchored_target_selector.gd" type="Script" id=16]
+[ext_resource path="res://base/hybrid_controller.gd" type="Script" id=17]
+[ext_resource path="res://small_ui_theme.tres" type="Theme" id=18]
+[ext_resource path="res://extra_small_ui_theme.tres" type="Theme" id=19]
+[ext_resource path="res://ui_theme.tres" type="Theme" id=20]
+[ext_resource path="res://arena/earthy_mat.tres" type="PhysicsMaterial" id=21]
+[ext_resource path="res://arena/metal_mat.tres" type="PhysicsMaterial" id=22]
+[ext_resource path="res://arena/rocky_mat.tres" type="PhysicsMaterial" id=23]
+[ext_resource path="res://arena/seed.tres" type="Texture" id=24]
+[ext_resource path="res://arena/protective_asteroid.tscn" type="PackedScene" id=25]
+[ext_resource path="res://arena/beam.gd" type="Script" id=26]
+[ext_resource path="res://base/ship_mat.tres" type="PhysicsMaterial" id=27]
+[ext_resource path="res://icons/lazer_icon.svg" type="Texture" id=28]
+[ext_resource path="res://icons/lazer_beam.svg" type="Texture" id=29]
+[ext_resource path="res://arena/beam.tscn" type="PackedScene" id=30]
+[ext_resource path="res://icons/company_logo.svg" type="Texture" id=31]
+[ext_resource path="res://icons/shipping.svg" type="Texture" id=32]
+[ext_resource path="res://icons/autoshipping.svg" type="Texture" id=33]
+[ext_resource path="res://fonts/SmoochSans-Bold.ttf" type="DynamicFontData" id=34]
+[ext_resource path="res://icons/minions_icon.svg" type="Texture" id=35]
+[ext_resource path="res://arena/single_minion.svg" type="Texture" id=36]
+[ext_resource path="res://icons/credit_icon.svg" type="Texture" id=37]
+[ext_resource path="res://arena/independent_plasma.tscn" type="PackedScene" id=38]
+[ext_resource path="res://arena/submenu.tscn" type="PackedScene" id=39]
+[ext_resource path="res://fonts/SmoochSans-Regular.ttf" type="DynamicFontData" id=40]
+[ext_resource path="res://fonts/SmoochSans-SemiBold.ttf" type="DynamicFontData" id=41]
+[ext_resource path="res://icons/arrow.svg" type="Texture" id=42]
+[ext_resource path="res://icons/ship.svg" type="Texture" id=43]
+[ext_resource path="res://icons/bandage.svg" type="Texture" id=44]
+[ext_resource path="res://icons/guided_sign.svg" type="Texture" id=45]
+[ext_resource path="res://icons/medium_ship.svg" type="Texture" id=46]
+[ext_resource path="res://icons/big_ship.svg" type="Texture" id=47]
+[ext_resource path="res://icons/plus.svg" type="Texture" id=48]
+[ext_resource path="res://arena/buy_menu.gd" type="Script" id=49]
+[ext_resource path="res://arena/minion_menu.tscn" type="PackedScene" id=50]
+[ext_resource path="res://arena/expandable_button.tscn" type="PackedScene" id=52]
+
+[sub_resource type="CircleShape2D" id=4]
+
+[sub_resource type="CircleShape2D" id=5]
+radius = 200.0
+
+[sub_resource type="GDScript" id=25]
+script/source = "extends \"res://arena/stash.gd\"
+
+export(Array, String) var accepted_resources
+
+func accept_resource(type):
+  return type in accepted_resources
+
+func content_changed():
+  .content_changed()
+  get_parent().calc_points(lerp(0, 0.8, content_size / capacity) if content_size < capacity else 1)
+"
+
+[sub_resource type="GDScript" id=19]
+script/source = "extends Node2D
+
+var linear_velocity:Vector2
+onready var parent = get_parent()
+
+func on_explode(component):
+  var direction = parent.linear_velocity.normalized()
+  linear_velocity = direction*200
+  position = parent.size*direction*1.5
+  rotation = randf()*PI*2
+  Pools.resource.spawn_amount('iron', randf()*10, self)
+"
+
+[sub_resource type="GDScript" id=6]
+script/source = "tool
+extends Node
+export var size = 100 setget set_size
+export(NodePath) var camera_path
+const force_field_width = 100
+
+func set_size(value):
+  size = value
+  if is_inside_tree():
+    $border1.position = Vector2(-size, 0)
+    $border1.scale = Vector2(1, size)
+    $border2.position = Vector2(size, 0)
+    $border2.scale = Vector2(1, size)
+    $border3.position = Vector2(0, -size)
+    $border3.scale = Vector2(1, size)
+    $border4.position = Vector2(0, size)
+    $border4.scale = Vector2(1, size)
+    $spawner/positioner.size = size
+    var camera = get_node(camera_path)
+    camera.limit_left = -value+force_field_width
+    camera.limit_top = -value+force_field_width
+    camera.limit_right = value-force_field_width
+    camera.limit_bottom = value-force_field_width
+"
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Node
+
+func _ready():
+  for child in get_children():
+    if child.name.ends_with(\"_spawner\"):
+      child.positioner = $positioner
+"
+
+[sub_resource type="GDScript" id=7]
+script/source = "# asteroid_modifier
+extends Node
+
+export(Array, Resource) var asteroid_types
+var rarity_sum:float
+
+func _ready():
+  rarity_sum = 0
+  for type in asteroid_types:
+    rarity_sum += type.rarity
+
+func on_spawn(obj):
+  var rand = randf() * rarity_sum
+  var spawn_type:AsteroidStat = null
+  for type in asteroid_types:
+    rand -= type.rarity
+    if rand <= 0:
+      spawn_type = type
+      break
+  if spawn_type == null:
+    return
+  
+  rand = randf()
+  var resource = obj.get_node('resource')
+  resource.resource_types = spawn_type.resources
+  resource.resource_abundance = []
+  var total_color:Color = Color(0, 0, 0, 0)
+  var total_abundance = 0
+  for i in range(len(spawn_type.resource_abundance)):
+    var abundance = rand_range(spawn_type.resource_abundance[i].x, spawn_type.resource_abundance[i].y)*obj.mass
+    var color = Pools.resource.colors[spawn_type.resources[i]]
+    resource.resource_abundance.append(abundance)
+    if color.a < 1:
+      color.r *= color.a
+      color.g *= color.a
+      color.b *= color.a
+    total_color += color * abundance
+    total_abundance += abundance
+  for i in range(len(resource.resource_abundance)):
+    resource.resource_abundance[i] *= obj.mass / total_abundance
+  var final_alpha = total_color.a / total_abundance
+  obj.color = total_color / total_color.a
+  obj.color.a = final_alpha
+  
+  obj.physics_material_override = spawn_type.physics_mat
+"
+
+[sub_resource type="Resource" id=8]
+resource_local_to_scene = true
+script = ExtResource( 6 )
+name = "earthy"
+rarity = 0.7
+resources = [ "dirt", "hydro" ]
+resource_abundance = [ Vector2( 0.9, 0.1 ), Vector2( 0.1, 0.9 ) ]
+physics_mat = ExtResource( 21 )
+
+[sub_resource type="Resource" id=11]
+resource_local_to_scene = true
+script = ExtResource( 6 )
+name = "capsule"
+rarity = 0.15
+resources = [ "iron", "capsule" ]
+resource_abundance = [ Vector2( 0.5, 0.7 ), Vector2( 0.7, 0.2 ) ]
+physics_mat = ExtResource( 22 )
+
+[sub_resource type="Resource" id=13]
+resource_local_to_scene = true
+script = ExtResource( 6 )
+name = "rocky"
+rarity = 0.2
+resources = [ "rock", "iron", "capsule" ]
+resource_abundance = [ Vector2( 0.7, 0.9 ), Vector2( 0.3, 0.1 ), Vector2( 0, 0.05 ) ]
+physics_mat = ExtResource( 23 )
+
+[sub_resource type="GDScript" id=16]
+script/source = "extends HBoxContainer
+
+export(NodePath) var stash
+
+func _ready():
+  stash = get_node(stash)
+  for child in get_children():
+    child.init(stash)
+"
+
+[sub_resource type="GDScript" id=14]
+script/source = "extends Button
+
+var stash
+
+func init(stash):
+  self.stash = stash
+  stash.connect('content_changed', self, 'content_changed')
+  content_changed(stash.content)
+  $text.text = name
+  $image.init(name)
+  yield(get_tree(), \"idle_frame\")
+  set_pressed_no_signal(name in stash.accepted_resources)
+
+func _toggled(button_pressed):
+  if button_pressed and not name in stash.accepted_resources:
+    stash.accepted_resources.append(name)
+  if not button_pressed and name in stash.accepted_resources:
+    stash.accepted_resources.erase(name)
+
+func content_changed(content):
+  $fill.anchor_top = 1-content.get(name, 0)/stash.capacity
+"
+
+[sub_resource type="GDScript" id=15]
+script/source = "extends Node2D
+
+export var size:float
+const sharpness = 0.8
+var points = null
+var type
+
+func init(resource_type):
+  type = Pools.resource.info[resource_type]
+  if type.shape != ResourceInfo.SHAPE.CIRCLE:
+    points = ShapeLib.shape.make(size, sharpness, type.shape)
+
+func _draw():
+  if points:
+    draw_colored_polygon(points, type.color, PoolVector2Array(), null, null, true)
+  else:
+    draw_circle(Vector2.ZERO, size, type.color)
+    draw_arc(Vector2.ZERO, size, 0, PI*2, ShapeLib.circle_point_count(size), type.color, 1, true)
+"
+
+[sub_resource type="StyleBoxFlat" id=18]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color( 0, 0.717647, 1, 0.501961 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="GDScript" id=17]
+script/source = "extends Button
+
+var on = false
+var stash
+func init(stash):
+  self.stash = stash
+  stash.connect('content_changed', self, 'content_changed')
+  content_changed(stash.content)
+  $text.text = '+all' if on else '-all'
+  $image1.init('hydro')
+  $image2.init('capsule')
+  $image3.init('iron')
+
+func _pressed():
+  var list = stash.accepted_resources
+  for child in get_parent().get_children():
+    if child != self:
+      child.pressed = on
+  on = not on
+  $text.text = '+all' if on else '-all'
+
+func content_changed(content):
+  $fill.anchor_top = 1-stash.content_size/stash.capacity
+"
+
+[sub_resource type="GDScript" id=52]
+script/source = "extends Node
+
+export(Array, NodePath) var exclusive_nodes
+
+func _ready():
+  for i in range(len(exclusive_nodes)):
+    exclusive_nodes[i] = get_node(exclusive_nodes[i])
+    exclusive_nodes[i].connect('visibility_changed', self, 'on_visibility_changed', [exclusive_nodes[i]])
+
+func on_visibility_changed(node):
+  if node.visible:
+    for other in exclusive_nodes:
+      if node != other:
+        other.visible = false
+"
+
+[sub_resource type="GDScript" id=66]
+script/source = "extends \"res://arena/buy_menu.gd\"
+
+export(NodePath) var lazer
+
+func _ready():
+  lazer = get_node(lazer)
+"
+
+[sub_resource type="DynamicFont" id=48]
+size = 20
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+extra_spacing_top = -3
+extra_spacing_bottom = -4
+font_data = ExtResource( 40 )
+
+[sub_resource type="DynamicFont" id=49]
+size = 20
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+extra_spacing_top = -3
+extra_spacing_bottom = -4
+font_data = ExtResource( 41 )
+
+[sub_resource type="GDScript" id=69]
+script/source = "extends Label
+
+func increment():
+  text = str(int(text) + 1)
+"
+
+[sub_resource type="GDScript" id=67]
+script/source = "extends \"res://arena/linked_buy_button.tres.gd\"
+
+func buy():
+  .buy()
+  parent.lazer.beam_count += 1
+"
+
+[sub_resource type="GDScript" id=68]
+script/source = "extends \"res://arena/linked_buy_button.tres.gd\"
+
+export var added_power:float = 1.5
+
+func buy():
+  .buy()
+  parent.lazer.base_damage += added_power
+"
+
+[sub_resource type="GDScript" id=65]
+script/source = "extends \"res://arena/buy_menu.gd\"
+
+export(NodePath) var tree
+
+func _ready():
+  tree = get_node(tree)
+"
+
+[sub_resource type="GDScript" id=55]
+script/source = "extends \"res://arena/buy_button.gd\"
+
+onready var item_name = .get_parent().name
+
+func buy():
+  parent.tree.get_node(item_name).spawn_multiple(amount)
+
+func get_parent():
+  return .get_parent().get_parent()
+"
+
+[sub_resource type="DynamicFont" id=41]
+size = 28
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+font_data = ExtResource( 34 )
+
+[sub_resource type="GDScript" id=64]
+script/source = "extends \"res://arena/buy_menu.gd\"
+
+export(NodePath) var ship
+
+func _ready():
+  ship = get_node(ship)
+"
+
+[sub_resource type="GDScript" id=58]
+script/source = "extends \"res://arena/buy_button.gd\"
+
+export var price_per_component:float = 2
+
+func _ready():
+  yield(get_tree(), 'idle_frame')
+  parent.ship.components.connect('component_changed', self, 'on_component_changed')
+  on_component_changed()
+
+func buy():
+  parent.ship.reset()
+
+func on_component_changed():
+  self.price = price_per_component * (parent.ship.components.og_price - parent.ship.components.price + 1)
+"
+
+[sub_resource type="StyleBoxFlat" id=59]
+bg_color = Color( 1, 1, 1, 1 )
+border_width_left = 1
+border_width_top = 1
+border_color = Color( 0.541176, 0.796078, 1, 1 )
+corner_detail = 1
+
+[sub_resource type="StyleBoxEmpty" id=62]
+
+[sub_resource type="GDScript" id=61]
+script/source = "extends \"res://arena/buy_button.gd\"
+
+export var price_per_component:float = 2
+
+func _ready():
+  yield(get_tree(), 'idle_frame')
+  parent.ship.components.connect('design_changed', self, 'design_changed')
+  parent.ship.components.connect('component_changed', self, 'component_changed')
+  design_changed()
+
+func buy():
+  parent.ship.load_ship_type(name)
+
+func design_changed():
+  yield(get_tree(), 'idle_frame')
+  pressed = parent.ship.type == name
+  mouse_filter = Control.MOUSE_FILTER_IGNORE if pressed else Control.MOUSE_FILTER_STOP
+  $price.visible = not pressed
+  $credit_icon.visible = not pressed
+  $active.visible = pressed
+  component_changed()
+
+func component_changed():
+  self.price = (parent.ship.ship_types[name]['stats']['price'] - parent.ship.components.price + 2) * price_per_component
+
+func on_credit_changed(_v):
+  if not pressed:
+    .on_credit_changed(_v)
+"
+
+[sub_resource type="DynamicFont" id=53]
+size = 24
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+font_data = ExtResource( 34 )
+
+[sub_resource type="GDScript" id=40]
+script/source = "extends Label
+
+func on_credit_changed(value):
+  $anim.stop(true)
+  $anim.play(\"highlight\")
+  text = str(GameUtils.fixed_length_format(floor(value)))
+"
+
+[sub_resource type="Animation" id=42]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:rect_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 0.396078, 0.882353, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=43]
+resource_name = "highlight"
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:rect_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 0.2, 1 ),
+"update": 0,
+"values": [ Vector2( 2, 2 ), Vector2( 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 1 ),
+"transitions": PoolRealArray( 3, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0.811765 ), Color( 0.396078, 0.882353, 1, 1 ) ]
+}
+
+[sub_resource type="GDScript" id=50]
+script/source = "extends GridContainer
+
+var labels = []
+var values = []
+
+func mouse_entered():
+  columns = 1
+  for node in values:
+    node.visible = false
+  for node in labels:
+    node.set_state(true)
+
+func mouse_exited():
+  columns = 2
+  for node in values:
+    node.visible = true
+  for node in labels:
+    node.set_state(false)
+
+func _ready():
+  connect(\"mouse_entered\", self, \"mouse_entered\")
+  connect(\"mouse_exited\", self, \"mouse_exited\")
+  for child in get_children():
+    if child.name.ends_with(\"_value\"):
+      values.append(child)
+    else:
+      labels.append(child)
+"
+
+[sub_resource type="GDScript" id=60]
+script/source = "extends Label
+
+export var on_text:String
+export var off_text:String
+
+func set_state(value):
+  text = on_text if value else off_text
+"
+
+[sub_resource type="GDScript" id=71]
+script/source = "extends Label
+
+onready var parent = get_parent().get_parent()
+
+func update_text():
+  text = str(stepify(parent.company.transport.time, 0.1))
+
+func _ready():
+  yield(get_tree(), 'idle_frame')
+  update_text()
+"
+
+[sub_resource type="GDScript" id=72]
+script/source = "extends Label
+
+onready var parent = get_parent().get_parent()
+
+func update_text():
+  text = str(stepify(parent.company.transport.stash.capacity, 0.1))
+
+func _ready():
+  yield(get_tree(), 'idle_frame')
+  update_text()
+"
+
+[sub_resource type="GDScript" id=57]
+script/source = "extends \"res://arena/buy_button.gd\"
+
+func buy():
+  print(parent.company.transport.time, ' ', 1 - float($amount.text) / 100)
+  parent.company.transport.time *= 1 - float($amount.text) / 100
+  print(parent.company.transport.time)
+"
+
+[sub_resource type="DynamicFont" id=54]
+size = 20
+outline_size = 2
+outline_color = Color( 0, 0, 0, 0.501961 )
+font_data = ExtResource( 34 )
+
+[sub_resource type="GDScript" id=56]
+script/source = "extends \"res://arena/buy_button.gd\"
+
+func buy():
+  parent.company.transport.stash.capacity *= 1 + float($amount.text) / 100
+"
+
+[sub_resource type="GDScript" id=36]
+script/source = "extends Button
+
+export(NodePath) var stash
+export(NodePath) var company
+onready var fill = $fill
+onready var progress = $fill/progress
+
+func _ready():
+  stash = get_node(stash)
+  company = get_node(company)
+  stash.connect(\"content_changed\", self, \"stash_changed\")
+
+func stash_changed(content):
+  if not progress.visible:
+    update_level()
+
+func update_level():
+  var fullness = clamp(stash.content.get('capsule', 0) / company.transport.stash.capacity, 0, 1)
+  fill.anchor_top = 1 - fullness
+  disabled = fullness <= 0
+  if fullness == 1 and toggle_mode and pressed:
+    export_capsule()
+
+func _pressed():
+  if not toggle_mode:
+    if stash.content.get('capsule', 0) > 0:
+      export_capsule()
+func export_capsule():
+  progress.visible = true
+  toggle_mode = true
+  progress.anchor_top = 1
+  company.export_capsule()
+  var tree = get_tree()
+  $image.set_state(true)
+  while progress.anchor_top > 0:
+    yield(tree, 'idle_frame')
+    progress.anchor_top = 1 - company.transport.progress_ratio()
+  $image.set_state(false)
+  progress.visible = false
+  if not pressed:
+    toggle_mode = false
+  update_level()
+
+func _toggled(button_pressed):
+  if not button_pressed and not progress.visible:
+    yield(get_tree(), 'idle_frame')
+    toggle_mode = false
+"
+
+[sub_resource type="StyleBoxFlat" id=33]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color( 0, 0.811765, 1, 0.501961 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id=39]
+content_margin_left = 8.0
+content_margin_right = 8.0
+bg_color = Color( 1, 1, 1, 0.501961 )
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="GDScript" id=35]
+script/source = "extends TextureRect
+
+export var on_texture:Texture
+export var off_texture:Texture
+
+func set_state(value):
+  texture = on_texture if value else off_texture
+"
+
+[sub_resource type="GDScript" id=27]
+script/source = "extends Node2D
+
+signal credit_changed(value)
+
+const side = 'friendly'
+
+### Component stats
+
+const radius = 9.0
+const border_width = 1.5
+const gap = 0.7
+
+const gap_angle = gap / (radius) / 2 * PI
+const center_radius = radius - border_width - gap*2
+const border_inner_radius = radius - border_width - gap
+const border_outer_radius = radius - gap
+
+###
+
+export var component_spacing:float = 15
+export var core_radius = 4
+export var spot_radius = 4
+export var arm_color:Color
+export var credit_multiplier:float = 1
+var slot_distance
+var slots
+var arm_points = []
+export var capsule_credit:float = 0
+
+onready var transport = $transport
+onready var stash = $stash
+
+func _ready():
+  slots = []
+  for child in get_children():
+    if child.name.begins_with('slot'):
+      slots.append(child)
+  slot_distance = component_spacing/2 / sin(PI/len(slots))
+  var angle_step = PI*2 / len(slots)
+  var points = ShapeLib.bone.make(core_radius, spot_radius, slot_distance - radius)
+  for i in range(len(slots)):
+    var angle = angle_step * i - PI/2
+    slots[i].position = Vector2(slot_distance, 0).rotated(angle)
+    var arm = points.duplicate()
+    for j in range(len(arm)):
+      arm[j] = arm[j].rotated(angle)
+    arm.append(arm.front())
+    arm_points.append(arm)
+  emit_signal(\"credit_changed\", capsule_credit)
+
+func _draw():
+  for points in arm_points:
+    draw_colored_polygon(points, arm_color, PoolVector2Array(), null, null, true)
+    draw_polyline(points, Color.white, 1, true)
+
+func export_capsule():
+  if transport.progress == null:
+    stash.stash.request_all_content(self, transport.stash, ['capsule'])
+    if transport.stash.content_size > 0:
+      transport.depart()
+      yield(transport, 'arrived')
+      capsule_credit += transport.stash.content.get('capsule', 0) / Pools.resource.info['capsule'].avg_chunk_mass() * credit_multiplier
+      emit_signal(\"credit_changed\", capsule_credit)
+      transport.stash.clear()
+
+func request_credit(amount):
+  if capsule_credit >= amount:
+    if amount > 0:
+      capsule_credit -= amount
+      emit_signal(\"credit_changed\", capsule_credit)
+    return amount
+"
+
+[sub_resource type="CircleShape2D" id=22]
+radius = 100.0
+
+[sub_resource type="GDScript" id=21]
+script/source = "extends Node2D
+
+var targets = []
+export var side:String = 'friendly'
+export var beam_color = Color(1, 1, 1, 0.5)
+export var intensity:float = 0 setget set_intensity
+export var charge:float
+export var base_damage:float = 5
+export var beam_scene:PackedScene
+export var beam_count = 3 setget set_beam_count
+var damage:float
+onready var anim = $anim
+onready var parent = get_parent()
+var beams
+onready var size = parent.radius
+
+func set_beam_count(value):
+  if beams != null:
+    for i in range(len(beams), value):
+      beams.append(beam_scene.instance())
+      add_child(beams.back())
+    for i in range(value, len(beams)):
+      beams.back().queue_free()
+      beams.pop_back()
+  beam_count = value
+
+func _ready():
+  beams = []
+  for i in range(beam_count):
+    beams.append(beam_scene.instance())
+    add_child(beams.back())
+
+func body_entered(body):
+  if GameUtils.is_shootable(side, body):
+    targets.append(body)
+    if len(targets) > 0 and not anim.is_playing():
+      anim.play(\"pulse\")
+
+func body_exited(body):
+  if body in targets:
+    targets.erase(body)
+
+func sync_targets():
+  if len(targets) == 0:
+    anim.stop()
+  var beam_index = 0
+  for target in targets:
+    beams[beam_index].init(target)
+    beam_index += 1
+    if beam_index >= len(beams):
+      break
+  for i in range(beam_index, len(beams)):
+    if beams[i].target != null:
+      beams[i].hibernate()
+  SoundPlayer.play_audio(\"plasma_area\", global_position, 1, log(beam_index)/log(10)*10)
+
+func _physics_process(delta):
+  damage = intensity * base_damage
+  for beam in beams:
+    if beam.target and not beam.target is Array:
+      beam.target.area_collide(self, delta)
+
+func set_intensity(value):
+  value = max(0, value)
+  intensity = value
+  for beam in beams:
+    beam.modulate.a = intensity
+  update()
+
+func _draw():
+  var color = beam_color
+  color.a = charge
+  draw_circle(Vector2.ZERO, parent.center_radius, color)
+  var beam_angle = PI*2 / len(beams)
+  for i in range(len(beams)):
+    if beams[i].target is Object:
+      ShapeLib.draw_ring_sector(self, parent.border_outer_radius, parent.border_inner_radius, beam_angle*i, beam_angle - parent.gap_angle, Color.white)
+  ShapeLib.draw_circle_outline(self, parent.radius, Color.white)
+  ShapeLib.draw_circle_outline(self, parent.center_radius, Color.white)
+  
+"
+
+[sub_resource type="Animation" id=24]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:intensity")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 0.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:charge")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 1.0 ]
+}
+
+[sub_resource type="Animation" id=23]
+resource_name = "pulse"
+length = 2.5
+loop = true
+step = 0.25
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:intensity")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.5, 1.5, 2.5 ),
+"transitions": PoolRealArray( 0.5, 1, 1, 1 ),
+"update": 0,
+"values": [ 0.0, 1.0, 0.0, 0.0 ]
+}
+tracks/1/type = "method"
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [  ],
+"method": "sync_targets"
+} ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath(".:charge")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 1.25, 2.5 ),
+"transitions": PoolRealArray( 0.4, 0.4, 1 ),
+"update": 0,
+"values": [ 1.0, 0.0, 1.0 ]
+}
+
+[sub_resource type="CircleShape2D" id=28]
+radius = 9.0
+
+[sub_resource type="GDScript" id=30]
+script/source = "extends Node
+
+export(NodePath) var target
+onready var parent = get_parent()
+export var thrust:float = 10
+const thrust_to_rotate_speed =1
+const thrust_to_torque = 500
+const thrust_to_force = 15
+const force_to_speed = 1
+const thrust_to_speed = thrust_to_force * force_to_speed
+
+func _physics_process(delta):
+  var velocity = parent.linear_velocity
+  var speed = velocity.length()
+  var mass = parent.mass
+  var diff = target.global_position - parent.global_position
+  var direction = diff - velocity
+#  var target_angle = direction.angle()
+#
+#  var rotation_delta = target_angle - parent.global_rotation
+#  if rotation_delta < -PI:
+#    rotation_delta += PI*2
+#  elif rotation_delta > PI:
+#    rotation_delta -= PI*2
+#  var target_angular_velocity = rotation_delta * thrust * thrust_to_rotate_speed
+#  var angular_delta = target_angular_velocity - parent.angular_velocity
+#  parent.apply_torque_impulse(clamp(angular_delta * mass, -1, 1) * thrust * thrust_to_torque * delta)
+
+  if direction.length() > 1:
+    direction = direction.normalized()
+  parent.apply_central_impulse(direction * thrust * thrust_to_force * delta)
+
+func _ready():
+  target = get_node(target)
+"
+
+[sub_resource type="GDScript" id=26]
+script/source = "extends Node2D
+
+const side = 'friendly'
+
+export var capacity_line_gap:float = 0.1
+export var beam_color:Color
+export var capacity_unit:float = 100
+export var transfer_speed:float = 70
+onready var tween = $beam/tween
+onready var beam = $beam
+onready var stash = $stash
+onready var parent = get_parent()
+const cap_bar_angle = 0.1
+const resource_bit_priority = 1
+onready var size = parent.radius
+
+func body_entered(other):
+  if tween.is_active():
+    yield(tween, \"tween_all_completed\")
+  if GameUtils.is_friend(side, other):
+    var other_stash = other.get_node_or_null('stash')
+    if other_stash and other_stash.content_size > 0:
+      beam.init(other)
+      var time = other_stash.content_size / transfer_speed
+      tween.interpolate_property(beam, 'modulate', Color.transparent, Color.white, time)
+      tween.interpolate_property(beam, 'modulate', Color.white, Color.transparent, 0.5, 0, 2 ,time)
+      tween.start()
+      yield(tween, \"tween_completed\")
+      if not beam.target is Array:
+        other_stash.request_all_content(self, stash)
+      yield(tween, \"tween_all_completed\")
+      beam.hibernate()
+
+func lost_target(target):
+  tween.stop_all()
+  beam.hibernate()
+
+func area_entered(other):
+  if other.has_method('dump_stash'):
+    other.body_entered(self, null, true)
+
+func _ready():
+  stash.capacity = INF
+
+func draw_outer_arc(from_angle, angle_change, color):
+  ShapeLib.draw_ring_sector(self, parent.border_outer_radius, parent.border_inner_radius, from_angle, angle_change, color)
+func draw_inner_segment(type, ratio):
+  var new_ratio = ratio - stash.content[type] / stash.content_size
+  ShapeLib.circle_seg.draw_min(self, parent.center_radius, ratio, new_ratio, Pools.resource.colors[type])
+  return new_ratio
+
+func _draw():
+  if stash.content_size > 0:
+    var ratio = 1
+    for type in stash.content:
+      ratio = draw_inner_segment(type, ratio)
+    
+    ratio = stash.content_size / capacity_unit
+    if ratio < 2:
+      draw_outer_arc(-PI/2, min(1, ratio)*(PI*2 - parent.gap_angle), Color(1, 1, 1, 0.3))
+      if ratio > 1:
+        draw_outer_arc(-PI/2, (ratio-1)*(PI*2 - parent.gap_angle), Color.white)
+    else:
+      var bar_count = 1
+      var bar_size = 2
+      ratio -= bar_size
+      while ratio > bar_size:
+        ratio -= bar_size
+        bar_size *= 2
+        bar_count += 1
+      ratio /= bar_size
+      var total_angle = (cap_bar_angle + parent.gap_angle) * bar_count + parent.gap_angle
+      var current_angle = parent.gap_angle - total_angle / 2 - PI / 2
+      var og_angle = current_angle
+      for i in range(bar_count):
+        draw_outer_arc(current_angle, cap_bar_angle, Color.white)
+        current_angle += cap_bar_angle + parent.gap_angle
+      draw_outer_arc(current_angle, ratio*(PI*2 - parent.gap_angle - current_angle + og_angle), Color(1, 1, 1, 0.5))
+  ShapeLib.draw_circle_outline(self, parent.radius, Color.white)
+  ShapeLib.draw_circle_outline(self, parent.center_radius, Color.white)
+
+func content_changed(content):
+  update()
+"
+
+[sub_resource type="GDScript" id=29]
+script/source = "extends Node2D
+
+onready var parent = get_parent()
+onready var beam = $beam
+var power:float = 0
+export var max_power = 100
+export var hydro_consumption_rate = 5
+export(NodePath) var stash
+export var beam_color:Color
+onready var size = parent.radius
+
+func _ready():
+  stash = get_node(stash)
+  beam.init(stash.get_parent())
+
+func _draw():
+  ShapeLib.circle_seg.draw(self, parent.center_radius, power / max_power, Pools.resource.colors['hydro'])
+  ShapeLib.draw_circle_outline(self, parent.radius, Color.white)
+  ShapeLib.draw_circle_outline(self, parent.center_radius, Color.white)
+
+func _process(delta):
+  var consumption_intensity = 0
+  if power < max_power and stash:
+    var request = min(max_power - power, hydro_consumption_rate * delta)
+    var consume = stash.request_resource('hydro', request)
+    consumption_intensity = consume / request
+    power += consume
+    update()
+  beam.animate_smooth_alpha(consumption_intensity, delta)
+"
+
+[sub_resource type="GDScript" id=20]
+script/source = "extends 'res://arena/minion_spawner.gd'
+
+const hp_mul = 1.5
+const mass_mul = 0.5
+
+func spawn(size):
+  var obj = .spawn(size)
+  obj.init_asteroid(size, size * size, 20, false)
+  obj.hp *= hp_mul
+  obj.mass *= mass_mul
+  var resource = obj.get_node('resource')
+  resource.resource_types = ['rock']
+  resource.resource_abundance = [rand_range(0.2, 1)*size*size]
+  return obj
+"
+
+[sub_resource type="GDScript" id=79]
+script/source = "extends 'res://arena/minion_spawner.gd'
+
+const hp_mul = 1.4
+const damage = 10
+var targets = []
+onready var pool = $pool
+export var hp_regen_rate:float = 1
+export var mass_threshold = 20
+export var protected_range:float = 50
+
+func spawn(size):
+  var obj = .spawn(size)
+  obj.damage = damage
+  obj.source = self
+  obj.init_plasma(size, size*size*hp_mul, Vector2.ZERO)
+  obj.target = null
+  obj.collision.set_deferred('disabled', false)
+  return obj
+
+func body_entered(other):
+  if GameUtils.is_enemy(parent.parent.side, other) and other.get('mass') and other.get('mass') > mass_threshold:
+    targets.append(other)
+    update_target(other)
+
+func body_exited(other):
+  var index = targets.find(other)
+  if index >= 0:
+    targets.remove(index)
+    for plasma in pool.get_children():
+      if plasma.target.get_ref() == other:
+        plasma.target = null
+
+func update_target(other):
+  if pool.get_child_count() > 0:
+    var dist = other.global_position - parent.global_position
+    var min_dist = abs(dist.dot(other.linear_velocity.tangent().normalized()))
+    if min_dist < protected_range:
+      var multiplier = other.size*other.size / pool.get_child_count() * 30
+      for plasma in pool.get_children():
+        if plasma.target.get_ref() != other:
+          var chance = multiplier / (other.global_position - plasma.global_position).length()
+          if randf() < chance:
+            plasma.target = other
+"
+
+[sub_resource type="GDScript" id=31]
+script/source = "extends Node
+
+onready var parent = get_parent()
+onready var barrier = parent.get_node(\"barrier\")
+onready var barrier_pool = barrier.get_node(\"pool\")
+export var power_cost:float = 10
+export var rock_intake_rate:float = 5
+export var targeted_count:int = 100
+var beam_color:Color
+var target_size
+var rock = 0
+var size
+onready var beam = $beam
+
+func _ready():
+  beam_color = Pools.resource.colors['rock']
+  beam_color.a = 0.5
+  yield(get_tree(), 'idle_frame')
+  size = parent.size
+  beam.init(parent.stash.get_parent())
+func _process(delta):
+  if not target_size:
+    target_size = barrier.rand_size()
+  if barrier_pool.get_child_count() >= targeted_count:
+    beam.animate_smooth_alpha(0, delta)
+  elif rock < target_size*target_size:
+    var request = rock_intake_rate * delta
+    var taken = parent.stash.request_resource('rock', request)
+    rock += taken
+    beam.animate_smooth_alpha(taken/request, delta)
+  elif parent.power >= power_cost:
+    rock -= target_size*target_size
+    parent.power -= power_cost
+    barrier.spawn_rand(target_size)
+  else:
+    beam.animate_smooth_alpha(0, delta)
+  
+"
+
+[sub_resource type="GDScript" id=70]
+script/source = "extends Timer
+
+export var targeted_count:int = 30
+export var power_consumption:float = 0.5
+onready var parent = get_parent()
+onready var plasma_cloud = parent.get_node(\"plasma\")
+onready var plasma_pool = plasma_cloud.get_node(\"pool\")
+
+func timeout():
+  if plasma_pool.get_child_count() < targeted_count:
+    var target_size = plasma_cloud.rand_size()
+    var power_cost = target_size * target_size * power_consumption
+    if parent.power > power_cost:
+      plasma_cloud.spawn_rand(target_size)
+      parent.power -= power_cost
+"
+
+[sub_resource type="GDScript" id=32]
+script/source = "extends Node2D
+
+func spawn_ship():
+  pass
+"
+
+[sub_resource type="GDScript" id=38]
+script/source = "extends Node
+
+signal arrived()
+
+export var time:float = 20
+var progress
+
+onready var stash = $stash
+
+func depart():
+  progress = 0
+  set_process(true)
+
+func _ready():
+  set_process(false)
+
+func _process(delta):
+  progress += delta
+  if progress >= time:
+    emit_signal(\"arrived\")
+    progress = null
+    set_process(false)
+
+func progress_ratio():
+  return progress / time if progress != null else 1
+"
+
+[node name="game" type="Node2D"]
+__meta__ = {
+"_edit_horizontal_guides_": [ -106.0, -271.0 ]
+}
+
+[node name="camera" type="Camera2D" parent="."]
+current = true
+limit_left = -900
+limit_top = -900
+limit_right = 900
+limit_bottom = 900
+smoothing_enabled = true
+smoothing_speed = 2.0
+script = ExtResource( 2 )
+manual_adjustment_limit = Vector2( 0.5, 1.2 )
+
+[node name="background" parent="." instance=ExtResource( 1 )]
+
+[node name="ship" parent="." instance=ExtResource( 3 )]
+rotation = 0.0
+type = "medium_ship"
+
+[node name="rank" parent="ship" index="1"]
+visible = true
+scale = Vector2( 0.05, 0.05 )
+texture = ExtResource( 31 )
+
+[node name="controller" type="Node2D" parent="ship"]
+process_priority = 10
+script = ExtResource( 17 )
+
+[node name="input" type="Area2D" parent="ship/controller"]
+script = ExtResource( 7 )
+
+[node name="shape" type="CollisionShape2D" parent="ship/controller/input"]
+shape = SubResource( 4 )
+
+[node name="mouse" type="Area2D" parent="ship/controller/input"]
+collision_mask = 16777215
+
+[node name="shape" type="CollisionShape2D" parent="ship/controller/input/mouse"]
+visible = false
+shape = SubResource( 5 )
+
+[node name="mouse_target_update" type="Timer" parent="ship/controller/input"]
+wait_time = 0.1
+autostart = true
+
+[node name="bot" parent="ship/controller" instance=ExtResource( 15 )]
+distance_kept = [ 6, 3 ]
+
+[node name="target_selector" type="Node2D" parent="ship/controller/bot"]
+script = ExtResource( 16 )
+
+[node name="stash" type="Node" parent="ship"]
+script = SubResource( 25 )
+capacity = 150.0
+accepted_resources = [ "dirt", "hydro", "rock", "iron", "capsule" ]
+
+[node name="resource_dropper" type="Node2D" parent="ship"]
+visible = false
+script = SubResource( 19 )
+
+[node name="border" type="Node" parent="."]
+script = SubResource( 6 )
+size = 1000
+camera_path = NodePath("../camera")
+
+[node name="border1" parent="border" instance=ExtResource( 8 )]
+position = Vector2( -1000, 0 )
+
+[node name="border2" parent="border" instance=ExtResource( 8 )]
+position = Vector2( 1000, 0 )
+rotation = 3.14159
+
+[node name="border3" parent="border" instance=ExtResource( 8 )]
+position = Vector2( 0, -1000 )
+rotation = 1.5708
+
+[node name="border4" parent="border" instance=ExtResource( 8 )]
+position = Vector2( 0, 1000 )
+rotation = -1.5708
+
+[node name="spawner" type="Node2D" parent="border"]
+script = SubResource( 3 )
+
+[node name="asteroid_modifier" type="Node" parent="border/spawner"]
+script = SubResource( 7 )
+asteroid_types = [ SubResource( 8 ), SubResource( 11 ), SubResource( 13 ) ]
+
+[node name="asteroid_spawner" type="Node2D" parent="border/spawner"]
+position = Vector2( 0, -1100 )
+script = ExtResource( 9 )
+spawn_rate = 0.8
+available_sizes_range = Vector2( 3, 4 )
+initial_velocity = 300.0
+aim_rand_range = Vector2( 500, 500 )
+target = NodePath("../../../ship")
+
+[node name="pool" type="Node" parent="border/spawner/asteroid_spawner"]
+script = ExtResource( 4 )
+scene = ExtResource( 10 )
+
+[node name="big_asteroid_spawner" type="Node2D" parent="border/spawner"]
+position = Vector2( 0, -1100 )
+script = ExtResource( 9 )
+spawn_rate = 0.2
+available_sizes_range = Vector2( 6, 8 )
+initial_velocity = 400.0
+aim_rand_range = Vector2( 500, 500 )
+target = NodePath("../../../ship")
+
+[node name="pool" type="Node" parent="border/spawner/big_asteroid_spawner"]
+script = ExtResource( 4 )
+scene = ExtResource( 10 )
+
+[node name="follower_spawner" type="Node2D" parent="border/spawner"]
+position = Vector2( 0, -1100 )
+script = ExtResource( 14 )
+spawn_rate = 0.1
+available_sizes_range = Vector2( 2, 6 )
+target = NodePath("../../../ship")
+thrust_range = Vector2( 3, 8 )
+
+[node name="pool" type="Node" parent="border/spawner/follower_spawner"]
+script = ExtResource( 4 )
+scene = ExtResource( 13 )
+
+[node name="positioner" type="Node2D" parent="border/spawner"]
+script = ExtResource( 12 )
+
+[node name="positioner1" type="Node2D" parent="border/spawner/positioner"]
+position = Vector2( -1100, 0 )
+script = ExtResource( 11 )
+spawn_range = Rect2( 0, -1000, 0, 2000 )
+
+[node name="positioner2" type="Node2D" parent="border/spawner/positioner"]
+position = Vector2( 1100, 0 )
+script = ExtResource( 11 )
+spawn_range = Rect2( 0, -1000, 0, 2000 )
+
+[node name="positioner3" type="Node2D" parent="border/spawner/positioner"]
+position = Vector2( 0, -1100 )
+script = ExtResource( 11 )
+spawn_range = Rect2( -1000, 0, 2000, 0 )
+
+[node name="positioner4" type="Node2D" parent="border/spawner/positioner"]
+position = Vector2( 0, 1100 )
+script = ExtResource( 11 )
+spawn_range = Rect2( -1000, 0, 2000, 0 )
+
+[node name="tween" type="Tween" parent="border/spawner/positioner"]
+
+[node name="resources" type="Node" parent="."]
+
+[node name="ui" type="CanvasLayer" parent="."]
+
+[node name="base" type="Control" parent="ui"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+mouse_filter = 2
+theme = ExtResource( 20 )
+
+[node name="container" type="VBoxContainer" parent="ui/base"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -113.0
+margin_right = 290.0
+grow_vertical = 0
+mouse_filter = 2
+theme = ExtResource( 18 )
+
+[node name="label" type="Label" parent="ui/base/container"]
+margin_right = 350.0
+margin_bottom = 39.0
+text = "Collecting"
+
+[node name="collecting" type="HBoxContainer" parent="ui/base/container"]
+margin_top = 43.0
+margin_right = 350.0
+margin_bottom = 113.0
+mouse_filter = 2
+theme = ExtResource( 19 )
+script = SubResource( 16 )
+stash = NodePath("../../../../ship/stash")
+
+[node name="dirt" type="Button" parent="ui/base/container/collecting"]
+margin_right = 50.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 50, 70 )
+toggle_mode = true
+script = SubResource( 14 )
+
+[node name="text" type="Label" parent="ui/base/container/collecting/dirt"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+align = 1
+valign = 2
+
+[node name="image" type="Node2D" parent="ui/base/container/collecting/dirt"]
+position = Vector2( 25, 25 )
+script = SubResource( 15 )
+size = 12.0
+
+[node name="fill" type="Panel" parent="ui/base/container/collecting/dirt"]
+show_behind_parent = true
+anchor_top = 0.503
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 18 )
+
+[node name="hydro" type="Button" parent="ui/base/container/collecting"]
+margin_left = 60.0
+margin_right = 110.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 50, 70 )
+toggle_mode = true
+script = SubResource( 14 )
+
+[node name="text" type="Label" parent="ui/base/container/collecting/hydro"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+align = 1
+valign = 2
+
+[node name="image" type="Node2D" parent="ui/base/container/collecting/hydro"]
+position = Vector2( 25, 25 )
+script = SubResource( 15 )
+size = 12.0
+
+[node name="fill" type="Panel" parent="ui/base/container/collecting/hydro"]
+show_behind_parent = true
+anchor_top = 0.503
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 18 )
+
+[node name="rock" type="Button" parent="ui/base/container/collecting"]
+margin_left = 120.0
+margin_right = 170.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 50, 70 )
+toggle_mode = true
+script = SubResource( 14 )
+
+[node name="text" type="Label" parent="ui/base/container/collecting/rock"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+align = 1
+valign = 2
+
+[node name="image" type="Node2D" parent="ui/base/container/collecting/rock"]
+position = Vector2( 25, 25 )
+script = SubResource( 15 )
+size = 12.0
+
+[node name="fill" type="Panel" parent="ui/base/container/collecting/rock"]
+show_behind_parent = true
+anchor_top = 0.503
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 18 )
+
+[node name="iron" type="Button" parent="ui/base/container/collecting"]
+margin_left = 180.0
+margin_right = 230.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 50, 70 )
+toggle_mode = true
+script = SubResource( 14 )
+
+[node name="text" type="Label" parent="ui/base/container/collecting/iron"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+align = 1
+valign = 2
+
+[node name="image" type="Node2D" parent="ui/base/container/collecting/iron"]
+position = Vector2( 25, 25 )
+script = SubResource( 15 )
+size = 12.0
+
+[node name="fill" type="Panel" parent="ui/base/container/collecting/iron"]
+show_behind_parent = true
+anchor_top = 0.503
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 18 )
+
+[node name="capsule" type="Button" parent="ui/base/container/collecting"]
+margin_left = 240.0
+margin_right = 290.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 50, 70 )
+toggle_mode = true
+script = SubResource( 14 )
+
+[node name="text" type="Label" parent="ui/base/container/collecting/capsule"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+align = 1
+valign = 2
+
+[node name="image" type="Node2D" parent="ui/base/container/collecting/capsule"]
+position = Vector2( 25, 25 )
+script = SubResource( 15 )
+size = 12.0
+
+[node name="fill" type="Panel" parent="ui/base/container/collecting/capsule"]
+show_behind_parent = true
+anchor_top = 0.503
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 18 )
+
+[node name="all" type="Button" parent="ui/base/container/collecting"]
+margin_left = 300.0
+margin_right = 350.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 50, 70 )
+script = SubResource( 17 )
+
+[node name="text" type="Label" parent="ui/base/container/collecting/all"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+align = 1
+valign = 2
+
+[node name="image3" type="Node2D" parent="ui/base/container/collecting/all"]
+position = Vector2( 18, 32 )
+script = SubResource( 15 )
+size = 10.0
+
+[node name="image1" type="Node2D" parent="ui/base/container/collecting/all"]
+position = Vector2( 25, 18 )
+script = SubResource( 15 )
+size = 10.0
+
+[node name="image2" type="Node2D" parent="ui/base/container/collecting/all"]
+position = Vector2( 32, 32 )
+script = SubResource( 15 )
+size = 10.0
+
+[node name="fill" type="Panel" parent="ui/base/container/collecting/all"]
+show_behind_parent = true
+anchor_top = 0.503
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 18 )
+
+[node name="company" type="VBoxContainer" parent="ui/base"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -180.0
+margin_bottom = 113.0
+grow_horizontal = 0
+rect_pivot_offset = Vector2( -634, 159 )
+theme = ExtResource( 18 )
+
+[node name="container" type="HBoxContainer" parent="ui/base/company"]
+margin_right = 320.0
+margin_bottom = 70.0
+grow_horizontal = 0
+mouse_filter = 2
+theme = ExtResource( 19 )
+alignment = 2
+script = SubResource( 52 )
+exclusive_nodes = [ NodePath("export_menu"), NodePath("minions_menu"), NodePath("ship_menu"), NodePath("lazer_menu") ]
+
+[node name="lazer_menu" parent="ui/base/company/container" instance=ExtResource( 39 )]
+margin_right = 205.0
+exclusive_nodes = [ NodePath("../lazer") ]
+
+[node name="container" parent="ui/base/company/container/lazer_menu" index="0"]
+margin_right = 200.0
+script = SubResource( 66 )
+company = NodePath("../../../../../../core")
+lazer = NodePath("../../../../../../core/lazer")
+
+[node name="close" parent="ui/base/company/container/lazer_menu/container/header" index="0"]
+text = "lazer"
+
+[node name="stats" type="GridContainer" parent="ui/base/company/container/lazer_menu/container" index="1"]
+margin_left = 25.0
+margin_top = 11.0
+margin_right = 85.0
+margin_bottom = 49.0
+rect_min_size = Vector2( 60, 0 )
+size_flags_vertical = 6
+columns = 2
+
+[node name="count" type="Label" parent="ui/base/company/container/lazer_menu/container/stats"]
+margin_right = 40.0
+margin_bottom = 17.0
+custom_fonts/font = SubResource( 48 )
+text = "count"
+
+[node name="count_value" type="Label" parent="ui/base/company/container/lazer_menu/container/stats"]
+margin_left = 44.0
+margin_right = 50.0
+margin_bottom = 17.0
+custom_fonts/font = SubResource( 49 )
+text = "1"
+script = SubResource( 69 )
+
+[node name="power" type="Label" parent="ui/base/company/container/lazer_menu/container/stats"]
+margin_top = 21.0
+margin_right = 40.0
+margin_bottom = 38.0
+custom_fonts/font = SubResource( 48 )
+text = "power"
+
+[node name="power_value" type="Label" parent="ui/base/company/container/lazer_menu/container/stats"]
+margin_left = 44.0
+margin_top = 21.0
+margin_right = 50.0
+margin_bottom = 38.0
+custom_fonts/font = SubResource( 49 )
+text = "1"
+script = SubResource( 69 )
+
+[node name="more_lazer" type="Button" parent="ui/base/company/container/lazer_menu/container" index="2"]
+margin_left = 90.0
+margin_right = 140.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 50, 0 )
+script = SubResource( 67 )
+price_level = 0.4
+linked = [ NodePath("../powerful_lazer") ]
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/lazer_menu/container/more_lazer"]
+anchor_right = 1.0
+margin_left = 3.0
+margin_top = 2.0
+margin_right = -2.0
+margin_bottom = 43.0
+rect_min_size = Vector2( 30, 30 )
+texture = ExtResource( 29 )
+expand = true
+stretch_mode = 5
+
+[node name="action" type="TextureRect" parent="ui/base/company/container/lazer_menu/container/more_lazer"]
+modulate = Color( 0.521569, 1, 0.741176, 1 )
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -33.0
+margin_top = 15.0
+margin_right = -3.0
+margin_bottom = 45.0
+rect_min_size = Vector2( 30, 30 )
+texture = ExtResource( 48 )
+expand = true
+stretch_mode = 5
+
+[node name="price" type="Label" parent="ui/base/company/container/lazer_menu/container/more_lazer"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "8"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/lazer_menu/container/more_lazer"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_bottom = -5.0
+rect_min_size = Vector2( 17, 17 )
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="powerful_lazer" type="Button" parent="ui/base/company/container/lazer_menu/container" index="3"]
+margin_left = 145.0
+margin_right = 195.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 50, 0 )
+script = SubResource( 68 )
+linked = [ NodePath("../more_lazer") ]
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/lazer_menu/container/powerful_lazer"]
+anchor_right = 1.0
+margin_left = 3.0
+margin_top = 2.0
+margin_right = -2.0
+margin_bottom = 43.0
+rect_min_size = Vector2( 30, 30 )
+texture = ExtResource( 29 )
+expand = true
+stretch_mode = 5
+
+[node name="action" type="TextureRect" parent="ui/base/company/container/lazer_menu/container/powerful_lazer"]
+modulate = Color( 0.521569, 1, 0.741176, 1 )
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -33.0
+margin_top = 15.0
+margin_right = -3.0
+margin_bottom = 45.0
+rect_min_size = Vector2( 30, 30 )
+texture = ExtResource( 42 )
+expand = true
+stretch_mode = 5
+flip_v = true
+
+[node name="price" type="Label" parent="ui/base/company/container/lazer_menu/container/powerful_lazer"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "8"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/lazer_menu/container/powerful_lazer"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_bottom = -5.0
+rect_min_size = Vector2( 17, 17 )
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="lazer" type="Button" parent="ui/base/company/container"]
+margin_right = 60.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 60, 70 )
+
+[node name="image" type="TextureRect" parent="ui/base/company/container/lazer"]
+anchor_right = 1.0
+rect_min_size = Vector2( 50, 50 )
+texture = ExtResource( 28 )
+expand = true
+stretch_mode = 6
+
+[node name="text" type="Label" parent="ui/base/company/container/lazer"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "lazer"
+align = 1
+valign = 2
+
+[node name="minions_menu" parent="ui/base/company/container" instance=ExtResource( 39 )]
+margin_left = 70.0
+margin_right = 210.0
+mouse_filter = 2
+exclusive_nodes = [ NodePath("../minions") ]
+
+[node name="container" parent="ui/base/company/container/minions_menu" index="0"]
+mouse_filter = 2
+script = SubResource( 65 )
+company = NodePath("../../../../../../core")
+tree = NodePath("../../../../../../core/tree")
+
+[node name="close" parent="ui/base/company/container/minions_menu/container/header" index="0"]
+text = "minion"
+
+[node name="barrier" parent="ui/base/company/container/minions_menu/container" index="1" instance=ExtResource( 52 )]
+margin_left = 25.0
+margin_right = 75.0
+margin_bottom = 60.0
+
+[node name="popup" parent="ui/base/company/container/minions_menu/container/barrier" index="0"]
+margin_bottom = 60.0
+
+[node name="button" parent="ui/base/company/container/minions_menu/container/barrier" index="1"]
+margin_bottom = 60.0
+script = SubResource( 55 )
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/minions_menu/container/barrier/button" index="0"]
+modulate = Color( 0, 1, 0.788235, 1 )
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -35.0
+margin_top = 5.0
+margin_right = -5.0
+margin_bottom = 35.0
+rect_min_size = Vector2( 30, 30 )
+mouse_filter = 2
+texture = ExtResource( 36 )
+expand = true
+stretch_mode = 5
+
+[node name="amount" type="Label" parent="ui/base/company/container/minions_menu/container/barrier/button" index="1"]
+margin_right = 29.0
+margin_bottom = 35.0
+custom_fonts/font = SubResource( 41 )
+text = "10"
+align = 1
+valign = 1
+
+[node name="price" type="Label" parent="ui/base/company/container/minions_menu/container/barrier/button" index="2"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "3"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/minions_menu/container/barrier/button" index="3"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_bottom = -3.0
+rect_min_size = Vector2( 15, 17 )
+mouse_filter = 2
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="barrier_menu" parent="ui/base/company/container/minions_menu/container" index="2" instance=ExtResource( 50 )]
+visible = false
+
+[node name="sep" parent="ui/base/company/container/minions_menu/container/barrier_menu" index="0"]
+exclusive_nodes = [ NodePath("../../barrier") ]
+
+[node name="orbit" parent="ui/base/company/container/minions_menu/container/barrier_menu/fields" index="0"]
+target = NodePath("../../../../../../../../../core/tree/barrier")
+
+[node name="count" parent="ui/base/company/container/minions_menu/container/barrier_menu/fields" index="1"]
+target = NodePath("../../../../../../../../../core/tree/barrier_controller")
+
+[node name="plasma" parent="ui/base/company/container/minions_menu/container" index="3" instance=ExtResource( 52 )]
+margin_left = 80.0
+margin_right = 130.0
+margin_bottom = 60.0
+
+[node name="popup" parent="ui/base/company/container/minions_menu/container/plasma" index="0"]
+margin_bottom = 60.0
+
+[node name="button" parent="ui/base/company/container/minions_menu/container/plasma" index="1"]
+margin_bottom = 60.0
+script = SubResource( 55 )
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/minions_menu/container/plasma/button" index="0"]
+modulate = Color( 0, 0.623529, 1, 1 )
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -35.0
+margin_top = 5.0
+margin_right = -5.0
+margin_bottom = 35.0
+rect_min_size = Vector2( 30, 30 )
+mouse_filter = 2
+texture = ExtResource( 36 )
+expand = true
+stretch_mode = 5
+
+[node name="amount" type="Label" parent="ui/base/company/container/minions_menu/container/plasma/button" index="1"]
+margin_right = 29.0
+margin_bottom = 35.0
+custom_fonts/font = SubResource( 41 )
+text = "10"
+align = 1
+valign = 1
+
+[node name="price" type="Label" parent="ui/base/company/container/minions_menu/container/plasma/button" index="2"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "3"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/minions_menu/container/plasma/button" index="3"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_bottom = -3.0
+rect_min_size = Vector2( 15, 17 )
+mouse_filter = 2
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="plasma_menu" parent="ui/base/company/container/minions_menu/container" index="4" instance=ExtResource( 50 )]
+visible = false
+margin_left = 185.0
+margin_right = 318.0
+
+[node name="sep" parent="ui/base/company/container/minions_menu/container/plasma_menu" index="0"]
+exclusive_nodes = [ NodePath("../../plasma") ]
+
+[node name="close" parent="ui/base/company/container/minions_menu/container/plasma_menu/header" index="0"]
+text = "blue"
+
+[node name="orbit" parent="ui/base/company/container/minions_menu/container/plasma_menu/fields" index="0"]
+target = NodePath("../../../../../../../../../core/tree/plasma")
+
+[node name="count" parent="ui/base/company/container/minions_menu/container/plasma_menu/fields" index="1"]
+target = NodePath("../../../../../../../../../core/tree/plasma_controller")
+
+[node name="exclusion" type="Node" parent="ui/base/company/container/minions_menu/container" index="5"]
+script = SubResource( 52 )
+exclusive_nodes = [ NodePath("../barrier_menu"), NodePath("../plasma_menu") ]
+
+[node name="minions" type="Button" parent="ui/base/company/container"]
+margin_left = 70.0
+margin_right = 130.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 60, 70 )
+
+[node name="image" type="TextureRect" parent="ui/base/company/container/minions"]
+anchor_right = 1.0
+rect_min_size = Vector2( 50, 50 )
+texture = ExtResource( 35 )
+expand = true
+stretch_mode = 6
+
+[node name="text" type="Label" parent="ui/base/company/container/minions"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "minions"
+align = 1
+valign = 2
+
+[node name="ship_menu" parent="ui/base/company/container" instance=ExtResource( 39 )]
+margin_left = 505.0
+margin_right = 784.0
+exclusive_nodes = [ NodePath("../ship") ]
+
+[node name="container" parent="ui/base/company/container/ship_menu" index="0"]
+margin_right = 274.0
+script = SubResource( 64 )
+company = NodePath("../../../../../../core")
+ship = NodePath("../../../../../../ship")
+
+[node name="close" parent="ui/base/company/container/ship_menu/container/header" index="0"]
+text = "ship"
+
+[node name="repair" type="Button" parent="ui/base/company/container/ship_menu/container" index="1"]
+margin_left = 25.0
+margin_right = 75.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 50, 0 )
+script = SubResource( 58 )
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/ship_menu/container/repair"]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 40.0
+margin_bottom = 52.0
+rect_min_size = Vector2( 35, 30 )
+texture = ExtResource( 43 )
+expand = true
+stretch_mode = 5
+
+[node name="action" type="TextureRect" parent="ui/base/company/container/ship_menu/container/repair"]
+modulate = Color( 0.521569, 1, 0.741176, 1 )
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -33.0
+margin_top = 20.0
+margin_right = -3.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 30, 30 )
+texture = ExtResource( 44 )
+expand = true
+stretch_mode = 5
+
+[node name="price" type="Label" parent="ui/base/company/container/ship_menu/container/repair"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "0"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/ship_menu/container/repair"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_right = 2.0
+margin_bottom = -3.0
+rect_min_size = Vector2( 17, 17 )
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="sep" type="VSeparator" parent="ui/base/company/container/ship_menu/container" index="2"]
+margin_left = 80.0
+margin_right = 84.0
+margin_bottom = 60.0
+custom_styles/separator = SubResource( 59 )
+
+[node name="subheader" type="Control" parent="ui/base/company/container/ship_menu/container" index="3"]
+margin_left = 89.0
+margin_right = 104.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 15, 0 )
+
+[node name="label" type="Label" parent="ui/base/company/container/ship_menu/container/subheader"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -35.5
+margin_top = -20.0
+margin_right = 24.5
+margin_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+rect_min_size = Vector2( 60, 0 )
+rect_rotation = -90.0
+rect_pivot_offset = Vector2( 35, 15 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_styles/normal = SubResource( 62 )
+text = "models"
+align = 1
+
+[node name="medium_ship" type="Button" parent="ui/base/company/container/ship_menu/container" index="4"]
+margin_left = 109.0
+margin_right = 159.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 50, 0 )
+toggle_mode = true
+script = SubResource( 61 )
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/ship_menu/container/medium_ship"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -17.5
+margin_top = 5.0
+margin_right = 17.5
+margin_bottom = 47.0
+rect_min_size = Vector2( 35, 30 )
+texture = ExtResource( 46 )
+expand = true
+stretch_mode = 5
+
+[node name="name" type="Label" parent="ui/base/company/container/ship_menu/container/medium_ship"]
+anchor_right = 1.0
+margin_left = 5.0
+margin_right = -5.0
+margin_bottom = 30.0
+grow_horizontal = 0
+custom_fonts/font = SubResource( 53 )
+text = "M"
+
+[node name="price" type="Label" parent="ui/base/company/container/ship_menu/container/medium_ship"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "0"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/ship_menu/container/medium_ship"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_right = 2.0
+margin_bottom = -3.0
+rect_min_size = Vector2( 17, 17 )
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="active" type="Label" parent="ui/base/company/container/ship_menu/container/medium_ship"]
+visible = false
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -25.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "active"
+align = 1
+valign = 2
+
+[node name="big_ship" type="Button" parent="ui/base/company/container/ship_menu/container" index="5"]
+margin_left = 164.0
+margin_right = 214.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 50, 0 )
+toggle_mode = true
+script = SubResource( 61 )
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/ship_menu/container/big_ship"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -17.5
+margin_top = 5.0
+margin_right = 17.5
+margin_bottom = 47.0
+rect_min_size = Vector2( 35, 30 )
+texture = ExtResource( 47 )
+expand = true
+stretch_mode = 5
+
+[node name="name" type="Label" parent="ui/base/company/container/ship_menu/container/big_ship"]
+anchor_right = 1.0
+margin_left = 5.0
+margin_right = -5.0
+margin_bottom = 30.0
+grow_horizontal = 0
+custom_fonts/font = SubResource( 53 )
+text = "L"
+
+[node name="price" type="Label" parent="ui/base/company/container/ship_menu/container/big_ship"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "0"
+align = 2
+valign = 2
+
+[node name="active" type="Label" parent="ui/base/company/container/ship_menu/container/big_ship"]
+visible = false
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -25.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "active"
+align = 1
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/ship_menu/container/big_ship"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_right = 2.0
+margin_bottom = -3.0
+rect_min_size = Vector2( 17, 17 )
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="big_fast_guided_ship" type="Button" parent="ui/base/company/container/ship_menu/container" index="6"]
+margin_left = 219.0
+margin_right = 269.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 50, 0 )
+toggle_mode = true
+script = SubResource( 61 )
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/ship_menu/container/big_fast_guided_ship"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -17.5
+margin_top = 5.0
+margin_right = 17.5
+margin_bottom = 47.0
+rect_min_size = Vector2( 35, 30 )
+texture = ExtResource( 47 )
+expand = true
+stretch_mode = 5
+
+[node name="name" type="Label" parent="ui/base/company/container/ship_menu/container/big_fast_guided_ship"]
+anchor_right = 1.0
+margin_left = 5.0
+margin_right = -5.0
+margin_bottom = 30.0
+grow_horizontal = 0
+custom_fonts/font = SubResource( 53 )
+text = "LG"
+
+[node name="action" type="TextureRect" parent="ui/base/company/container/ship_menu/container/big_fast_guided_ship"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -36.0
+margin_top = 18.0
+margin_right = -16.0
+margin_bottom = 38.0
+rect_min_size = Vector2( 20, 20 )
+texture = ExtResource( 45 )
+expand = true
+stretch_mode = 5
+
+[node name="price" type="Label" parent="ui/base/company/container/ship_menu/container/big_fast_guided_ship"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "0"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/ship_menu/container/big_fast_guided_ship"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_right = 2.0
+margin_bottom = -3.0
+rect_min_size = Vector2( 17, 17 )
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="active" type="Label" parent="ui/base/company/container/ship_menu/container/big_fast_guided_ship"]
+visible = false
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -25.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "active"
+align = 1
+valign = 2
+
+[node name="ship" type="Button" parent="ui/base/company/container"]
+margin_left = 140.0
+margin_right = 200.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 60, 0 )
+rect_pivot_offset = Vector2( 289, 25 )
+
+[node name="img" type="TextureRect" parent="ui/base/company/container/ship"]
+anchor_right = 1.0
+margin_left = 8.0
+margin_top = 2.0
+margin_right = -10.0
+margin_bottom = 52.0
+rect_min_size = Vector2( 42, 50 )
+rect_rotation = 30.0
+rect_pivot_offset = Vector2( 21, 25 )
+texture = ExtResource( 43 )
+expand = true
+stretch_mode = 5
+
+[node name="text" type="Label" parent="ui/base/company/container/ship"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+rect_min_size = Vector2( 50, 30 )
+text = "ship"
+align = 1
+valign = 2
+
+[node name="capsule_credit" type="Panel" parent="ui/base/company/container"]
+margin_left = 210.0
+margin_right = 260.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 50, 70 )
+
+[node name="num" type="Label" parent="ui/base/company/container/capsule_credit"]
+modulate = Color( 0.396078, 0.882353, 1, 1 )
+anchor_right = 1.0
+rect_min_size = Vector2( 50, 50 )
+rect_pivot_offset = Vector2( 25, 25 )
+custom_fonts/font = SubResource( 41 )
+text = "0"
+align = 1
+valign = 1
+script = SubResource( 40 )
+
+[node name="anim" type="AnimationPlayer" parent="ui/base/company/container/capsule_credit/num"]
+anims/RESET = SubResource( 42 )
+anims/highlight = SubResource( 43 )
+
+[node name="text" type="Label" parent="ui/base/company/container/capsule_credit"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "credits"
+align = 1
+valign = 2
+
+[node name="export_menu" parent="ui/base/company/container" instance=ExtResource( 39 )]
+margin_left = 924.0
+margin_right = 1129.0
+exclusive_nodes = [ NodePath("../export") ]
+
+[node name="container" parent="ui/base/company/container/export_menu" index="0"]
+margin_right = 200.0
+script = ExtResource( 49 )
+company = NodePath("../../../../../../core")
+
+[node name="close" parent="ui/base/company/container/export_menu/container/header" index="0"]
+text = "export"
+
+[node name="stats" type="GridContainer" parent="ui/base/company/container/export_menu/container" index="1"]
+margin_left = 25.0
+margin_top = 11.0
+margin_right = 85.0
+margin_bottom = 49.0
+rect_min_size = Vector2( 60, 0 )
+size_flags_vertical = 6
+columns = 2
+script = SubResource( 50 )
+
+[node name="duration" type="Label" parent="ui/base/company/container/export_menu/container/stats"]
+margin_right = 28.0
+margin_bottom = 17.0
+custom_fonts/font = SubResource( 48 )
+text = "time"
+script = SubResource( 60 )
+on_text = "duration"
+off_text = "time"
+
+[node name="duration_value" type="Label" parent="ui/base/company/container/export_menu/container/stats"]
+margin_left = 32.0
+margin_right = 47.0
+margin_bottom = 17.0
+custom_fonts/font = SubResource( 49 )
+text = "20"
+script = SubResource( 71 )
+
+[node name="capacity" type="Label" parent="ui/base/company/container/export_menu/container/stats"]
+margin_top = 21.0
+margin_right = 28.0
+margin_bottom = 38.0
+custom_fonts/font = SubResource( 48 )
+text = "cap"
+script = SubResource( 60 )
+on_text = "capacity"
+off_text = "cap"
+
+[node name="capacity_value" type="Label" parent="ui/base/company/container/export_menu/container/stats"]
+margin_left = 32.0
+margin_top = 21.0
+margin_right = 47.0
+margin_bottom = 38.0
+custom_fonts/font = SubResource( 49 )
+text = "50"
+script = SubResource( 72 )
+
+[node name="time" type="Button" parent="ui/base/company/container/export_menu/container" index="2"]
+margin_left = 90.0
+margin_right = 140.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 50, 0 )
+script = SubResource( 57 )
+
+[node name="arrow" type="TextureRect" parent="ui/base/company/container/export_menu/container/time"]
+modulate = Color( 0, 1, 0.462745, 1 )
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -40.0
+margin_right = 5.0
+margin_bottom = 45.0
+rect_min_size = Vector2( 45, 45 )
+texture = ExtResource( 42 )
+expand = true
+stretch_mode = 5
+
+[node name="label" type="Label" parent="ui/base/company/container/export_menu/container/time"]
+anchor_right = 1.0
+margin_left = 5.0
+margin_top = 20.0
+margin_right = -5.0
+margin_bottom = 42.0
+grow_horizontal = 0
+custom_fonts/font = SubResource( 54 )
+text = "time"
+
+[node name="amount" type="Label" parent="ui/base/company/container/export_menu/container/time"]
+anchor_right = 1.0
+margin_left = 5.0
+margin_right = -5.0
+margin_bottom = 30.0
+grow_horizontal = 0
+custom_fonts/font = SubResource( 53 )
+text = "20%"
+
+[node name="price" type="Label" parent="ui/base/company/container/export_menu/container/time"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "10"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/export_menu/container/time"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_bottom = -5.0
+rect_min_size = Vector2( 17, 17 )
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="cap" type="Button" parent="ui/base/company/container/export_menu/container" index="3"]
+margin_left = 145.0
+margin_right = 195.0
+margin_bottom = 60.0
+rect_min_size = Vector2( 50, 0 )
+script = SubResource( 56 )
+
+[node name="arrow" type="TextureRect" parent="ui/base/company/container/export_menu/container/cap"]
+modulate = Color( 0, 1, 0.462745, 1 )
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -40.0
+margin_right = 5.0
+margin_bottom = 45.0
+rect_min_size = Vector2( 15, 15 )
+texture = ExtResource( 42 )
+expand = true
+stretch_mode = 5
+flip_v = true
+
+[node name="label" type="Label" parent="ui/base/company/container/export_menu/container/cap"]
+anchor_right = 1.0
+margin_left = 5.0
+margin_top = 20.0
+margin_right = -5.0
+margin_bottom = 42.0
+grow_horizontal = 0
+custom_fonts/font = SubResource( 54 )
+text = "cap"
+
+[node name="amount" type="Label" parent="ui/base/company/container/export_menu/container/cap"]
+anchor_right = 1.0
+margin_left = 5.0
+margin_right = -5.0
+margin_bottom = 30.0
+grow_horizontal = 0
+custom_fonts/font = SubResource( 53 )
+text = "20%"
+
+[node name="price" type="Label" parent="ui/base/company/container/export_menu/container/cap"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -28.0
+margin_top = -25.0
+margin_right = -15.0
+margin_bottom = 3.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "10"
+align = 2
+valign = 2
+
+[node name="credit_icon" type="TextureRect" parent="ui/base/company/container/export_menu/container/cap"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -15.0
+margin_top = -20.0
+margin_bottom = -5.0
+rect_min_size = Vector2( 17, 17 )
+texture = ExtResource( 37 )
+expand = true
+stretch_mode = 5
+
+[node name="export" parent="ui/base/company/container" instance=ExtResource( 52 )]
+margin_left = 270.0
+margin_right = 320.0
+
+[node name="button" parent="ui/base/company/container/export" index="1"]
+disabled = true
+script = SubResource( 36 )
+stash = NodePath("../../../../../../core/stash/stash")
+company = NodePath("../../../../../../core")
+
+[node name="fill" type="Panel" parent="ui/base/company/container/export/button" index="0"]
+show_behind_parent = true
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 33 )
+
+[node name="progress" type="Panel" parent="ui/base/company/container/export/button/fill"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 39 )
+
+[node name="image" type="TextureRect" parent="ui/base/company/container/export/button" index="1"]
+modulate = Color( 0.572549, 0.917647, 1, 1 )
+anchor_right = 1.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 0, 50 )
+mouse_filter = 2
+texture = ExtResource( 32 )
+expand = true
+stretch_mode = 6
+script = SubResource( 35 )
+on_texture = ExtResource( 33 )
+off_texture = ExtResource( 32 )
+
+[node name="text" type="Label" parent="ui/base/company/container/export/button" index="2"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -39.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "export"
+align = 1
+valign = 2
+script = SubResource( 60 )
+on_text = "auto"
+off_text = "export"
+
+[node name="label" type="Label" parent="ui/base/company"]
+margin_top = 74.0
+margin_right = 320.0
+margin_bottom = 113.0
+text = "Company"
+align = 2
+
+[node name="core" type="Node2D" parent="."]
+script = SubResource( 27 )
+component_spacing = 30.0
+spot_radius = 3
+arm_color = Color( 1, 1, 1, 0.25098 )
+capsule_credit = 20.0
+
+[node name="range" type="Area2D" parent="core"]
+process_priority = 4
+z_index = -1
+z_as_relative = false
+collision_mask = 3
+
+[node name="shape" type="CollisionShape2D" parent="core/range"]
+shape = SubResource( 22 )
+
+[node name="lazer" type="RigidBody2D" parent="core"]
+position = Vector2( -20, 10 )
+collision_layer = 4
+collision_mask = 6
+mode = 2
+mass = 80.0
+physics_material_override = ExtResource( 27 )
+gravity_scale = 0.0
+script = SubResource( 21 )
+__meta__ = {
+"_editor_description_": ""
+}
+beam_color = Color( 0, 0.858824, 1, 0.501961 )
+charge = 1.0
+base_damage = 1.5
+beam_scene = ExtResource( 30 )
+beam_count = 1
+
+[node name="anim" type="AnimationPlayer" parent="core/lazer"]
+playback_process_mode = 0
+anims/RESET = SubResource( 24 )
+anims/pulse = SubResource( 23 )
+
+[node name="shape" type="CollisionShape2D" parent="core/lazer"]
+shape = SubResource( 28 )
+
+[node name="chaser" type="Node" parent="core/lazer"]
+script = SubResource( 30 )
+target = NodePath("../../slot3")
+thrust = 20.0
+
+[node name="stash" type="RigidBody2D" parent="core"]
+position = Vector2( 20, 10 )
+collision_layer = 4
+collision_mask = 6
+mode = 2
+mass = 80.0
+physics_material_override = ExtResource( 27 )
+gravity_scale = 0.0
+script = SubResource( 26 )
+beam_color = Color( 1, 0.67451, 0.168627, 0.501961 )
+
+[node name="beam" type="Node2D" parent="core/stash"]
+script = ExtResource( 26 )
+
+[node name="tween" type="Tween" parent="core/stash/beam"]
+
+[node name="shape" type="CollisionShape2D" parent="core/stash"]
+shape = SubResource( 28 )
+
+[node name="stash" type="Node" parent="core/stash"]
+script = ExtResource( 5 )
+
+[node name="chaser" type="Node" parent="core/stash"]
+script = SubResource( 30 )
+target = NodePath("../../slot2")
+thrust = 20.0
+
+[node name="tree" type="RigidBody2D" parent="core"]
+position = Vector2( 0, -20 )
+collision_layer = 4
+collision_mask = 6
+input_pickable = true
+mode = 2
+mass = 80.0
+physics_material_override = ExtResource( 27 )
+gravity_scale = 0.0
+script = SubResource( 29 )
+stash = NodePath("../stash/stash")
+beam_color = Color( 0.392157, 0.713726, 1, 0.501961 )
+
+[node name="shape" type="CollisionShape2D" parent="core/tree"]
+shape = SubResource( 28 )
+
+[node name="sprite" type="Sprite" parent="core/tree"]
+scale = Vector2( 0.06, 0.06 )
+texture = ExtResource( 24 )
+
+[node name="chaser" type="Node" parent="core/tree"]
+script = SubResource( 30 )
+target = NodePath("../../slot1")
+thrust = 20.0
+
+[node name="barrier" type="Node" parent="core/tree"]
+script = SubResource( 20 )
+size_range = Vector2( 2, 4 )
+distance_range = Vector2( 50, 61 )
+speed_range = Vector2( 60, 60 )
+color = Color( 0.254902, 0.694118, 0.560784, 1 )
+center = NodePath("../..")
+
+[node name="pool" type="Node" parent="core/tree/barrier"]
+script = ExtResource( 4 )
+scene = ExtResource( 25 )
+
+[node name="plasma" type="Node" parent="core/tree"]
+script = SubResource( 79 )
+size_range = Vector2( 2, 4 )
+distance_range = Vector2( 20, 41 )
+speed_range = Vector2( -0.1, 0.1 )
+color = Color( 0, 0.694118, 1, 1 )
+center = NodePath("../..")
+starting_count = 10
+
+[node name="pool" type="Node" parent="core/tree/plasma"]
+script = ExtResource( 4 )
+scene = ExtResource( 38 )
+
+[node name="barrier_controller" type="Node2D" parent="core/tree"]
+script = SubResource( 31 )
+power_cost = 8.0
+
+[node name="beam" type="Node2D" parent="core/tree/barrier_controller"]
+modulate = Color( 1, 1, 1, 0 )
+show_behind_parent = true
+z_index = -2
+script = ExtResource( 26 )
+min_range = inf
+target_size_ratio = 1.0
+
+[node name="plasma_controller" type="Timer" parent="core/tree"]
+autostart = true
+script = SubResource( 70 )
+power_consumption = 0.7
+
+[node name="beam" type="Node2D" parent="core/tree"]
+modulate = Color( 1, 1, 1, 0 )
+show_behind_parent = true
+z_index = -2
+script = ExtResource( 26 )
+min_range = inf
+target_size_ratio = 1.0
+
+[node name="ship_spawn" type="Node2D" parent="core/tree"]
+script = SubResource( 32 )
+
+[node name="slot1" type="Node2D" parent="core"]
+
+[node name="slot2" type="Node2D" parent="core"]
+
+[node name="slot3" type="Node2D" parent="core"]
+
+[node name="logo" type="Sprite" parent="core"]
+scale = Vector2( 0.05, 0.05 )
+texture = ExtResource( 31 )
+
+[node name="transport" type="Node" parent="core"]
+script = SubResource( 38 )
+
+[node name="stash" type="Node" parent="core/transport"]
+script = ExtResource( 5 )
+capacity = 50.0
+
+[connection signal="explode" from="ship/components" to="ship/resource_dropper" method="on_explode"]
+[connection signal="on_spawn" from="border/spawner/asteroid_spawner" to="border/spawner/asteroid_modifier" method="on_spawn"]
+[connection signal="on_spawn" from="border/spawner/big_asteroid_spawner" to="border/spawner/asteroid_modifier" method="on_spawn"]
+[connection signal="on_spawn" from="border/spawner/follower_spawner" to="border/spawner/asteroid_modifier" method="on_spawn"]
+[connection signal="buy" from="ui/base/company/container/lazer_menu/container/more_lazer" to="ui/base/company/container/lazer_menu/container/stats/count_value" method="increment"]
+[connection signal="buy" from="ui/base/company/container/lazer_menu/container/powerful_lazer" to="ui/base/company/container/lazer_menu/container/stats/power_value" method="increment"]
+[connection signal="pressed" from="ui/base/company/container/lazer" to="ui/base/company/container/lazer_menu" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="ui/base/company/container/minions_menu/container/barrier/popup/button" to="ui/base/company/container/minions_menu/container/barrier_menu" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="ui/base/company/container/minions_menu/container/plasma/popup/button" to="ui/base/company/container/minions_menu/container/plasma_menu" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="ui/base/company/container/minions" to="ui/base/company/container/minions_menu" method="set_visible" binds= [ true ]]
+[connection signal="pressed" from="ui/base/company/container/ship" to="ui/base/company/container/ship_menu" method="set_visible" binds= [ true ]]
+[connection signal="buy" from="ui/base/company/container/export_menu/container/time" to="ui/base/company/container/export_menu/container/stats/duration_value" method="update_text"]
+[connection signal="buy" from="ui/base/company/container/export_menu/container/cap" to="ui/base/company/container/export_menu/container/stats/capacity_value" method="update_text"]
+[connection signal="pressed" from="ui/base/company/container/export/popup/button" to="ui/base/company/container/export_menu" method="set_visible" binds= [ true ]]
+[connection signal="toggled" from="ui/base/company/container/export/button" to="ui/base/company/container/export/button/text" method="set_state"]
+[connection signal="credit_changed" from="core" to="ui/base/company/container/capsule_credit/num" method="on_credit_changed"]
+[connection signal="area_entered" from="core/range" to="core/stash" method="area_entered"]
+[connection signal="body_entered" from="core/range" to="core/lazer" method="body_entered"]
+[connection signal="body_entered" from="core/range" to="core/stash" method="body_entered"]
+[connection signal="body_entered" from="core/range" to="core/tree/plasma" method="body_entered"]
+[connection signal="body_exited" from="core/range" to="core/lazer" method="body_exited"]
+[connection signal="body_exited" from="core/range" to="core/tree/plasma" method="body_exited"]
+[connection signal="content_changed" from="core/stash/stash" to="core/stash" method="content_changed"]
+[connection signal="timeout" from="core/tree/plasma_controller" to="core/tree/plasma_controller" method="timeout"]
+
+[editable path="ship"]
+[editable path="ui/base/company/container/lazer_menu"]
+[editable path="ui/base/company/container/minions_menu"]
+[editable path="ui/base/company/container/minions_menu/container/barrier"]
+[editable path="ui/base/company/container/minions_menu/container/barrier_menu"]
+[editable path="ui/base/company/container/minions_menu/container/barrier_menu/fields/orbit"]
+[editable path="ui/base/company/container/minions_menu/container/plasma"]
+[editable path="ui/base/company/container/minions_menu/container/plasma_menu"]
+[editable path="ui/base/company/container/minions_menu/container/plasma_menu/fields/orbit"]
+[editable path="ui/base/company/container/ship_menu"]
+[editable path="ui/base/company/container/export_menu"]
+[editable path="ui/base/company/container/export"]

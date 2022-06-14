@@ -1,0 +1,120 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+var current_spawn_index:int = 0
+
+func spawn(instance):
+  var anchor = get_child(current_spawn_index)
+  instance.global_position = anchor.global_position
+  instance.global_rotation = anchor.global_rotation
+  current_spawn_index = (current_spawn_index+1) % get_child_count()
+
+func reset():
+  current_spawn_index = 0
+"
+
+[node name="anchor0" type="Node2D"]
+position = Vector2( 50, 0 )
+rotation = 3.14159
+script = SubResource( 1 )
+
+[node name="spawn0" type="Node2D" parent="."]
+rotation = 3.14159
+
+[node name="spawn1" type="Node2D" parent="."]
+position = Vector2( 0, 20 )
+rotation = 3.14159
+
+[node name="spawn2" type="Node2D" parent="."]
+position = Vector2( 0, -20 )
+rotation = 3.14159
+
+[node name="spawn3" type="Node2D" parent="."]
+position = Vector2( 0, 40 )
+rotation = 3.14159
+
+[node name="spawn4" type="Node2D" parent="."]
+position = Vector2( 0, -40 )
+rotation = 3.14159
+
+[node name="spawn5" type="Node2D" parent="."]
+position = Vector2( -20, 0 )
+rotation = 3.14159
+
+[node name="spawn6" type="Node2D" parent="."]
+position = Vector2( -20, 20 )
+rotation = 3.14159
+
+[node name="spawn7" type="Node2D" parent="."]
+position = Vector2( -20, -20 )
+rotation = 3.14159
+
+[node name="spawn8" type="Node2D" parent="."]
+position = Vector2( -20, 40 )
+rotation = 3.14159
+
+[node name="spawn9" type="Node2D" parent="."]
+position = Vector2( -20, -40 )
+rotation = 3.14159
+
+[node name="spawn10" type="Node2D" parent="."]
+position = Vector2( -40, 0 )
+rotation = 3.14159
+
+[node name="spawn11" type="Node2D" parent="."]
+position = Vector2( -40, 20 )
+rotation = 3.14159
+
+[node name="spawn12" type="Node2D" parent="."]
+position = Vector2( -40, -20 )
+rotation = 3.14159
+
+[node name="spawn13" type="Node2D" parent="."]
+position = Vector2( -40, 40 )
+rotation = 3.14159
+
+[node name="spawn14" type="Node2D" parent="."]
+position = Vector2( -40, -40 )
+rotation = 3.14159
+
+[node name="spawn15" type="Node2D" parent="."]
+position = Vector2( -60, 0 )
+rotation = 3.14159
+
+[node name="spawn16" type="Node2D" parent="."]
+position = Vector2( -60, 20 )
+rotation = 3.14159
+
+[node name="spawn17" type="Node2D" parent="."]
+position = Vector2( -60, -20 )
+rotation = 3.14159
+
+[node name="spawn18" type="Node2D" parent="."]
+position = Vector2( -60, 40 )
+rotation = 3.14159
+
+[node name="spawn19" type="Node2D" parent="."]
+position = Vector2( -60, -40 )
+rotation = 3.14159
+
+[node name="spawn20" type="Node2D" parent="."]
+position = Vector2( -80, 0 )
+rotation = 3.14159
+
+[node name="spawn21" type="Node2D" parent="."]
+position = Vector2( -80, 20 )
+rotation = 3.14159
+
+[node name="spawn22" type="Node2D" parent="."]
+position = Vector2( -80, -20 )
+rotation = 3.14159
+
+[node name="spawn23" type="Node2D" parent="."]
+position = Vector2( -80, 40 )
+rotation = 3.14159
+
+[node name="spawn24" type="Node2D" parent="."]
+position = Vector2( -80, -40 )
+rotation = 3.14159

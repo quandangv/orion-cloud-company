@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://backgrounds/stars.png" type="Texture" id=2]
+[ext_resource path="res://backgrounds/base.tscn" type="PackedScene" id=3]
+
+[node name="background" instance=ExtResource( 3 )]
+
+[node name="layer" type="ParallaxLayer" parent="." index="0"]
+motion_scale = Vector2( 0.05, 0.05 )
+motion_mirroring = Vector2( 1229, 648 )
+
+[node name="Sprite" type="Sprite" parent="layer" index="0"]
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 2 )

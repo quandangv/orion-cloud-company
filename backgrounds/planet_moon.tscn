@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://backgrounds/planet-moon.png" type="Texture" id=1]
+[ext_resource path="res://backgrounds/galaxy.tscn" type="PackedScene" id=2]
+
+[node name="background2" instance=ExtResource( 2 )]
+
+[node name="layer3" type="ParallaxLayer" parent="." index="0"]
+motion_scale = Vector2( 0.2, 0.2 )
+
+[node name="Sprite" type="Sprite" parent="layer3" index="0"]
+scale = Vector2( 0.3, 0.3 )
+texture = ExtResource( 1 )

@@ -1,0 +1,1 @@
+- Add storage component, capable of storing 100 resource each. This would also be consistent with the capacity unit of the company stash of 100

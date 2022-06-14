@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1229.5507"
+   height="887.99274"
+   viewBox="0 0 325.3186 234.94809"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
+   sodipodi:docname="planet-moon.svg"
+   inkscape:export-filename="/home/quan/ssa-new/backgrounds/galaxy-0.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#000000"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     units="px"
+     width="1920px"
+     inkscape:zoom="0.24532157"
+     inkscape:cx="173.242"
+     inkscape:cy="279.22534"
+     inkscape:window-width="1880"
+     inkscape:window-height="1000"
+     inkscape:window-x="20"
+     inkscape:window-y="20"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     inkscape:snap-global="false" />
+  <defs
+     id="defs2">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath19019">
+      <circle
+         style="fill:#00a3ff;fill-opacity:1;stroke:none;stroke-width:2;stroke-opacity:1"
+         id="circle19021"
+         cx="1765.371"
+         cy="758.83356"
+         r="542.86603" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath44672">
+      <circle
+         style="fill:#ffaf00;fill-opacity:1;stroke:none;stroke-width:1.21039;stroke-opacity:1"
+         id="circle44674"
+         cx="444.24567"
+         cy="92.373001"
+         r="46.398533"
+         transform="rotate(27.814479)" />
+    </clipPath>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter4572"
+       x="-0.27390391"
+       y="-0.27390391"
+       width="1.5478078"
+       height="1.5478078">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="10.590616"
+         id="feGaussianBlur4574" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter2023"
+       x="-0.51198171"
+       y="-0.51198171"
+       width="2.0239634"
+       height="2.0239634">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="2.8312055"
+         id="feGaussianBlur2025" />
+    </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath44672-7">
+      <circle
+         style="fill:#ffaf00;fill-opacity:1;stroke:none;stroke-width:1.21039;stroke-opacity:1"
+         id="circle44674-5"
+         cx="444.24567"
+         cy="92.373001"
+         r="46.398533"
+         transform="rotate(27.814479)" />
+    </clipPath>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline"
+     transform="translate(-252.78802,-191.96136)">
+    <g
+       id="g2598"
+       inkscape:export-filename="/home/quan/ssa-new/backgrounds/earth.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       style="display:inline"
+       inkscape:label="earth">
+      <circle
+         style="opacity:0.739028;mix-blend-mode:normal;fill:#ff6b8a;fill-opacity:1;stroke:none;stroke-width:1.21039;stroke-opacity:1;filter:url(#filter4572)"
+         id="circle4465"
+         cx="444.24567"
+         cy="92.373001"
+         r="46.398533"
+         transform="rotate(27.814479)" />
+      <circle
+         style="fill:#b14a60;fill-opacity:1;stroke:none;stroke-width:1.21039;stroke-opacity:1"
+         id="path15590"
+         cx="444.24567"
+         cy="92.373001"
+         r="46.398533"
+         transform="rotate(27.814479)" />
+      <path
+         id="path44168"
+         style="fill:#e760c6;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         inkscape:transform-center-x="4.1592578e-06"
+         inkscape:transform-center-y="-2.5625691e-06"
+         d="m 383.33259,247.05256 -12.24317,7.06882 v 7.50238 l -6.874,-3.96875 -17.4811,10.09293 -6.01359,-3.47214 -12.76667,7.37112 v 14.74226 l 12.76667,7.37112 7.26467,-4.19457 16.23002,9.371 17.87591,-10.32082 v -14.00586 l 1.24126,0.71675 12.24267,-7.0683 v -14.13712 z m -64.97534,57.43939 -10.95076,6.32261 v 12.6447 l 10.95076,6.32261 10.68306,-6.16809 1.83658,1.0604 8.19279,-4.72995 v -9.4604 l -8.19279,-4.72994 -5.16713,2.98328 z"
+         clip-path="url(#clipPath44672)" />
+      <path
+         id="circle17165"
+         style="opacity:0.170644;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.21039;stroke-opacity:1"
+         d="m 371.46675,247.95243 c 7.10905,3.75084 3.17912,25.16442 -8.77773,47.82873 -11.95685,22.6643 -27.41293,37.99703 -34.52231,34.24682 22.66454,11.95695 50.7308,3.27677 62.68779,-19.38775 11.95695,-22.66455 3.27677,-50.73081 -19.38775,-62.6878 z"
+         sodipodi:nodetypes="cscsc" />
+      <circle
+         style="opacity:0.609212;mix-blend-mode:normal;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.173109;stroke-opacity:1;filter:url(#filter2023)"
+         id="circle1661"
+         cx="685.99774"
+         cy="100.25288"
+         r="6.6358752"
+         transform="rotate(27.814479)" />
+      <circle
+         style="fill:#959595;fill-opacity:1;stroke:none;stroke-width:0.173109;stroke-opacity:1"
+         id="circle32489"
+         cx="685.99774"
+         cy="100.25288"
+         r="6.6358752"
+         transform="rotate(27.814479)" />
+      <path
+         id="path32491"
+         style="opacity:0.170644;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.173109;stroke-opacity:1"
+         d="m 563.05701,402.89431 c 1.01672,0.53644 0.45467,3.59899 -1.25539,6.84042 -1.71005,3.24143 -3.92057,5.4343 -4.93735,4.89795 3.24146,1.71007 7.25547,0.46864 8.96555,-2.77282 1.71008,-3.24146 0.46864,-7.25548 -2.77281,-8.96555 z"
+         sodipodi:nodetypes="cscsc" />
+      <path
+         sodipodi:type="star"
+         style="opacity:1;fill:#ff6b8a;fill-opacity:1;stroke-width:7.55906;stroke-linecap:round"
+         id="path5940"
+         inkscape:flatsided="true"
+         sodipodi:sides="6"
+         sodipodi:cx="1238.199"
+         sodipodi:cy="957.39587"
+         sodipodi:r1="9.7660704"
+         sodipodi:r2="8.4576654"
+         sodipodi:arg1="1.5707963"
+         sodipodi:arg2="2.0943951"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="m 1238.199,967.16194 -8.4577,-4.88303 0,-9.76607 8.4577,-4.88304 8.4576,4.88304 0,9.76607 z"
+         transform="matrix(0.32821291,0,0,0.32821291,-76.234991,-61.070452)"
+         inkscape:transform-center-x="2.8311559e-06"
+         inkscape:transform-center-y="-2.4241432e-06"
+         inkscape:export-filename="/home/quan/ssa-new/backgrounds/galaxy-2.png"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
+      <path
+         sodipodi:type="star"
+         style="opacity:1;fill:#ff6b8a;fill-opacity:1;stroke-width:7.55906;stroke-linecap:round"
+         id="path5942"
+         inkscape:flatsided="true"
+         sodipodi:sides="6"
+         sodipodi:cx="1221.2736"
+         sodipodi:cy="969.07892"
+         sodipodi:r1="6.8555975"
+         sodipodi:r2="5.9371214"
+         sodipodi:arg1="1.5707963"
+         sodipodi:arg2="2.0943951"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="m 1221.2736,975.93452 -5.9372,-3.4278 0,-6.8556 5.9372,-3.4278 5.9371,3.4278 0,6.8556 z"
+         transform="matrix(0.32013872,0,0,0.32013872,-67.485577,-53.60785)"
+         inkscape:transform-center-x="2.8890226e-06"
+         inkscape:transform-center-y="-1.733524e-06"
+         inkscape:export-filename="/home/quan/ssa-new/backgrounds/galaxy-2.png"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
+      <path
+         sodipodi:type="star"
+         style="opacity:1;fill:#ff6b8a;fill-opacity:1;stroke-width:7.55906;stroke-linecap:round"
+         id="path5944"
+         inkscape:flatsided="true"
+         sodipodi:sides="6"
+         sodipodi:cx="1212.4547"
+         sodipodi:cy="977.26202"
+         sodipodi:r1="4.3380103"
+         sodipodi:r2="3.7568271"
+         sodipodi:arg1="1.5707963"
+         sodipodi:arg2="2.0943951"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="m 1212.4547,981.60003 -3.7568,-2.169 0,-4.33801 3.7568,-2.16901 3.7568,2.16901 0,4.33801 z"
+         transform="matrix(0.32927637,0,0,0.32927637,-80.587122,-61.06506)"
+         inkscape:transform-center-x="4.2992281e-06"
+         inkscape:transform-center-y="-2.8324176e-06"
+         inkscape:export-filename="/home/quan/ssa-new/backgrounds/galaxy-2.png"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
+    </g>
+  </g>
+</svg>

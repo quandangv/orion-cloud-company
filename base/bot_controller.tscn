@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://base/bot_controller.gd" type="Script" id=1]
+
+[sub_resource type="CircleShape2D" id=1]
+radius = 1.0
+
+[node name="controller" type="Node2D"]
+script = ExtResource( 1 )
+distance_kept = [ 6, 6, 3 ]
+
+[node name="detector" type="Area2D" parent="."]
+collision_mask = 16777215
+
+[node name="shape" type="CollisionShape2D" parent="detector"]
+shape = SubResource( 1 )

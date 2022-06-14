@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://arena/beam.gd" type="Script" id=1]
+
+[node name="beam" type="Node2D"]
+z_index = -2
+script = ExtResource( 1 )

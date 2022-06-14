@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://base/hybrid_controller.tscn" type="PackedScene" id=1]
+[ext_resource path="res://base/ship.tscn" type="PackedScene" id=4]
+
+[node name="ship" instance=ExtResource( 4 )]
+type = "guided_turret_ship"
+
+[node name="controller" parent="." index="5" instance=ExtResource( 1 )]

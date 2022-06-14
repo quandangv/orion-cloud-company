@@ -1,0 +1,27 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://component_utils.gd" type="Script" id=1]
+[ext_resource path="res://ship_build/components/turret.tres" type="Resource" id=3]
+[ext_resource path="res://ship_build/components/armor.tres" type="Resource" id=4]
+[ext_resource path="res://ship_build/components/energizer.tres" type="Resource" id=5]
+[ext_resource path="res://ship_build/components/generator.tres" type="Resource" id=6]
+[ext_resource path="res://ship_build/components/core.tres" type="Resource" id=7]
+[ext_resource path="res://ship_build/components/thruster.tres" type="Resource" id=8]
+[ext_resource path="res://ship_build/components/accelerator.tres" type="Resource" id=9]
+[ext_resource path="res://ship_build/components/shield.tres" type="Resource" id=10]
+[ext_resource path="res://ship_build/components/guiding_turret.tres" type="Resource" id=11]
+
+[node name="component" type="Node"]
+script = ExtResource( 1 )
+tile_radius = 25.6
+tilset_cell_size = 51.2
+stat_color = {
+"armor": Color( 0.588235, 0.588235, 0.588235, 1 ),
+"plasma_power": Color( 0, 0.839216, 0.937255, 1 ),
+"plasma_supply": Color( 0.827451, 0, 1, 1 ),
+"radar": Color( 1, 0, 0.364706, 1 ),
+"regeneration": Color( 0.85098, 0.85098, 0.85098, 1 ),
+"shield": Color( 0, 0.933333, 0.741176, 1 ),
+"thrust": Color( 0.937255, 0.894118, 0, 1 )
+}
+components = [ ExtResource( 9 ), ExtResource( 4 ), ExtResource( 7 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 11 ), ExtResource( 10 ), ExtResource( 8 ), ExtResource( 3 ) ]

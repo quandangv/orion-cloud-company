@@ -1,0 +1,121 @@
+[gd_scene load_steps=6 format=2]
+
+[sub_resource type="GDScript" id=3]
+script/source = "extends Node
+
+onready var fade_in = $fade_in
+onready var fade_out = $fade_out
+onready var fade_in_grow = $fade_in_grow
+onready var fade_out_grow = $fade_out_grow
+onready var fade_out_shrink = $fade_out_shrink
+"
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends \"res://bulk_animator.gd\"
+
+export var anim_speed:float = 2
+
+func on_add(obj):
+  if not obj.visible:
+    obj.visible = true
+    obj.modulate.a = 0
+
+func animate(obj, delta):
+  obj.modulate.a += delta * anim_speed
+  return obj.modulate.a >= 1
+
+func final_state(obj):
+  obj.modulate.a = 1
+"
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends \"res://bulk_animator.gd\"
+
+export var anim_speed:float = 2
+
+func on_add(obj):
+  if not obj.visible:
+    obj.visible = true
+    obj.modulate.a = 0
+
+func animate(obj, delta):
+  obj.modulate.a -= delta * anim_speed
+  return obj.modulate.a <= 0
+
+func final_state(obj):
+  obj.visible = false
+  obj.modulate.a = 0
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends \"res://bulk_animator.gd\"
+
+export var anim_speed:float = 2
+export var final_scale:float = 3
+
+func on_add(obj):
+  if not obj.visible:
+    obj.visible = true
+    obj.modulate.a = 0
+  obj.scale = Vector2(1, 1)
+
+func animate(obj, delta):
+  obj.modulate.a -= delta * anim_speed
+  obj.scale = Vector2(1, 1) * lerp(final_scale, 1, obj.modulate.a)
+  return obj.modulate.a <= 0
+
+func final_state(obj):
+  obj.visible = false
+  obj.modulate.a = 0
+  obj.scale = Vector2(1, 1) * final_scale
+"
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends \"res://bulk_animator.gd\"
+
+export var anim_speed:float = 2
+export var initial_scale:float = 0.5
+
+func on_add(obj):
+  if not obj.visible:
+    obj.visible = true
+    obj.modulate.a = 0
+  obj.scale = Vector2(1, 1) * initial_scale
+
+func animate(obj, delta):
+  obj.modulate.a += delta * anim_speed
+  obj.scale = Vector2(1, 1) * lerp(initial_scale, 1, obj.modulate.a)
+  return obj.modulate.a >= 1
+
+func final_state(obj):
+  obj.visible = true
+  obj.modulate.a = 1
+  obj.scale = Vector2(1, 1)
+"
+
+[node name="anim" type="Node"]
+script = SubResource( 3 )
+
+[node name="fade_in" type="Node" parent="."]
+script = SubResource( 1 )
+excluded = [ NodePath("../fade_out") ]
+
+[node name="fade_out" type="Node" parent="."]
+script = SubResource( 2 )
+excluded = [ NodePath("../fade_in") ]
+
+[node name="fade_out_grow" type="Node" parent="."]
+script = SubResource( 4 )
+excluded = [ NodePath("../fade_in_grow") ]
+anim_speed = 1.0
+
+[node name="fade_out_shrink" type="Node" parent="."]
+script = SubResource( 4 )
+excluded = [ NodePath("../fade_in_grow") ]
+anim_speed = 1.0
+final_scale = 0.5
+
+[node name="fade_in_grow" type="Node" parent="."]
+script = SubResource( 5 )
+excluded = [ NodePath("../fade_out_grow"), NodePath("../fade_out_shrink") ]
+anim_speed = 1.0
